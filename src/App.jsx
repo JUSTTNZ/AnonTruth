@@ -1,12 +1,16 @@
-
-import './App.css'
-
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { Welcome } from './pages/welcomePage'
 function App() {
 
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-600">Hello, Tailwind CSS!</h1>
+    <div>
+        <Router>
+            <Routes>
+                <Route path="/" element={<Welcome />} />
+                
+            </Routes>
+        </Router>
     </div>
   )
 }
