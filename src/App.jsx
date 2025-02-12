@@ -4,11 +4,10 @@ function App() {
 
 
   return (
-    <div>
+    <div className="bg-deepBlue text-electricTeal min-h-screen font-sans">
         <Router>
             <Routes>
                 <Route path="/" element={<Welcome />} />
-                
             </Routes>
         </Router>
     </div>

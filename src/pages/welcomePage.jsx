@@ -1,7 +1,9 @@
 export const Welcome = () => {
     return (
-        <div>
-            <h1>Welcome to the App</h1>
-        </div>
+        <>
+            <div className="bg-deepBlue h-screen text-white flex justify-center items-center">
+                <h1 className=" p-6 text-black ">AnonTruth</h1>
+            </div>
+        </>
     )
 }
