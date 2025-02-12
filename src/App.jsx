@@ -4,7 +4,7 @@ function App() {
 
 
   return (
-    <div className="bg-deepBlue text-electricTeal min-h-screen font-sans">
+    <div>
         <Router>
             <Routes>
                 <Route path="/" element={<Welcome />} />
