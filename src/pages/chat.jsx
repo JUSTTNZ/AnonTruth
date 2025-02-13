@@ -120,29 +120,30 @@ export default function Chat() {
 </div>
 
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5">
+
         {messages.map((msg) => (
+            
           <div
             key={msg.id}
             className={`flex items-start ${msg.sender === "me" ? "justify-end" : "justify-start"}`}
           >
+            
             {msg.sender === "other" && (
               <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
             )}
             <div>
-              <p className="text-gray-300 text-xs">{msg.username}</p>
+              <p className="text-gray-300 text-sm">{msg.username}</p>
               <div
-                className={`max-w-xs p-3 rounded-lg ${
+                className={`max-w-xs p-2  text-sm rounded-lg ${
                   msg.sender === "me" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"
                 }`}
               >
                 {msg.text}
-                {msg.time && <p className="text-xs text-gray-400 mt-1">{msg.time}</p>}
+
               </div>
             </div>
-            {msg.sender === "me" && (
-              <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full ml-2" />
-            )}
+         
           </div>
         ))}
       </div>
