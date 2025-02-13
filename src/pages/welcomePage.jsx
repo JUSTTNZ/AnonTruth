@@ -33,7 +33,8 @@ export const Welcome = () => {
                 <div>
                     <p onClick={handleClick} className={`fixed bottom-5 transform -translate-x-1/2 bg-[#00CCFF] font-bold text-lg text-white px-6 py-2 rounded-full transition-all duration-1000 
                     ${isVisible ? "bottom-[120px]" : "bottom-[-200px] opacity-0" }
-                    ${isClicked ? "bg-[#003366]" : "bg-[#00CCFF]"}`}>Getting started</p>
+                    ${isClicked ? "bg-[#003366] scale-90" : "bg-[#00CCFF]"}
+                    animate-floating shadow-lg`}>Getting started</p>
                 </div>
             </div>
         </>
