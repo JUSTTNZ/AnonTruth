@@ -3,14 +3,16 @@ import { MdEmail, MdLock } from "react-icons/md";
 import { useState } from "react";
 import { auth, firestore } from "../../firebase";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider  } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import GoogleIcon from "../assets/google logo.png";
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, SetEmail] = useState('')
   const [password, SetPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [user, setUser] = useState(null);
   const [error, SetError] = useState(null)
   const [btnloading, setbtnloading] = useState()
   const [isClicked, setIsClicked] = useState(false);
@@ -44,6 +46,17 @@ try {
   }
 
   }
+
+  const login = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user); // Set logged-in user details
+      navigate('/chats')
+    } catch (error) {
+      console.error("Error signing in:", error.message);
+    }
+  };
 
   const handleClick = () => {
     setIsClicked(true);
@@ -164,9 +177,10 @@ try {
           <a href="#" className="hover:underline">Forgot password?</a>
           <a href="#" className="hover:underline">Sign up</a>
         </div>
-
-     
-   
+        <div onClick={login} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">
+          <img src={GoogleIcon} alt="" className="w-5 h-5 rounded-full" />
+          <p>Sign in with Google</p>
+        </div>
       </div>
     </div>
   );

@@ -44,6 +44,7 @@ try {
 
   }
 
+  
   const handleClick = () => {
     setIsClicked(true);
     setTimeout(() => setIsClicked(false), 200); 
@@ -147,7 +148,7 @@ try {
           <a href="#" className="hover:underline">Sign up</a>
         </div>
 
-     
+        
    
       </div>
     </div>
