@@ -6,10 +6,11 @@ import { useNavigate } from "react-router-dom";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 
-export default function Login() {
+export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, SetEmail] = useState('')
   const [password, SetPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, SetError] = useState(null)
   const [btnloading, setbtnloading] = useState()
   const [isClicked, setIsClicked] = useState(false);
@@ -56,7 +57,7 @@ try {
         <h1 className="text-3xl font-bold text-center text-[#00CCFF]">Anon Truth</h1>
 
         <p className="text-gray-400 text-sm text-center mt-2">
-          Only login via email, Google, is supported 
+          One Anon Truth account is all you need to access all Anon Truth services.
         </p>
   {error && (
     <div className=" text-center text-red-400">
@@ -98,6 +99,23 @@ try {
           </div>
         </div>
 
+        <div className="mt-4">
+          <label className="block text-sm font-medium">Password</label>
+          <div className="flex items-center border border-gray-600 rounded-md px-3 mt-1">
+            <MdLock className="text-gray-400" />
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Confirm Password"
+              className="w-full bg-transparent p-2 outline-none text-white pointer"
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={confirmPassword}
+              required
+            />
+            <button className="pointer" onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <FaRegEyeSlash className="text-gray-400 pointer" /> : <FaRegEye className="text-gray-400 pointer" />}
+            </button>
+          </div>
+        </div>
      
         <div className="mt-4 flex items-center gap-2">
           <input required type="checkbox" className="w-4 h-4 text-[#00CCFF]" />
@@ -134,7 +152,7 @@ try {
                 ></path>
               </svg>
             ) : (
-              "Log in"
+              "Sign Up"
             )}
          
         </button>
