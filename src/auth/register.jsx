@@ -3,8 +3,8 @@ import { MdEmail, MdLock } from "react-icons/md";
 import { useState } from "react";
 import { auth, firestore } from "../../firebase";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc,  setDoc } from "firebase/firestore";
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,30 +17,36 @@ export default function Register() {
   const navigate = useNavigate();
   const handleLogin = async (e) => {
 e.preventDefault()
+if (password !== confirmPassword) {
+  SetError({ message: "Passwords do not match." });
+  return; 
+}
 try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     const userId = user.uid;
 
-    const UserDoc = await getDoc(doc(firestore, "users", userId));
-    if (UserDoc.exists()) {
-      setbtnloading(true);
-      setTimeout(() => {
-        setbtnloading(false);
-        navigate("/#");
-      }, 9000);
-    } else {
-      SetError("You are not authorized as a User.");
-      setTimeout(() => SetError(""), 5000);
-    }
-  } catch (err) {
+     await setDoc(doc(firestore, "users", userId),{
+      email,
+      userId,
+    });
+    console.log("User  data saved to Firestore");
+
     setbtnloading(true);
     setTimeout(() => {
       setbtnloading(false);
-      
-      SetError(err, "Invalid email or password.");
-      setTimeout(() => SetError(""), 5000);
+      navigate('/chat');
+    }, 9000);
+  } catch (error) {
+    setbtnloading(true);
+    setTimeout(() => {
+      setbtnloading(false);
+      SetError(error);
+      setTimeout(() => {
+        SetError(false);
+      }, 5000);
     }, 2000);
+    console.error("Error registering: ", error);
   }
 
   }
