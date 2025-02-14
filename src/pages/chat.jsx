@@ -5,10 +5,16 @@ import img1 from '../assets/security.png';
 import { collection, getDocs, addDoc, onSnapshot, Timestamp } from 'firebase/firestore';
 import { firestore, auth } from '../../firebase'; 
 
+
 export default function Chat() {
+    const RandomUsername = (baseName) => {
+        const randomNumber = Math.floor(Math.random() * 1000); 
+        return `${baseName}${randomNumber}`;
+      };
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isAllowed, setIsAllowed] = useState(false);
+  const [username, setUsername] = useState(RandomUsername("anonymous")); 
 
   useEffect(() => {
     const checkTime = () => {
@@ -36,6 +42,9 @@ export default function Chat() {
         id: doc.id,
         ...doc.data(),
       }));
+
+      // Sort messages by timestamp in ascending order
+      fetchedMessages.sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
       setMessages(fetchedMessages);
     });
 
@@ -49,14 +58,14 @@ export default function Chat() {
     const newMsg = {
       text: newMessage,
       sender: auth.currentUser.uid, 
-      username: "Me", 
+      username: username, 
       avatar: img1, 
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       timestamp: Timestamp.now(), 
     };
 
     try {
-      await addDoc(collection(firestore, 'messages'), newMsg); // Send message to Firestore
+      await addDoc(collection(firestore, 'messages'), newMsg); 
       setNewMessage("");
     } catch (error) {
       console.error('Error sending message:', error);
@@ -74,7 +83,8 @@ export default function Chat() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5">
-        {messages.map((msg) => (
+        {messages.
+        map((msg) => (
           <div
             key={msg.id}
             className={`flex items-start ${msg.sender === auth.currentUser .uid ? "justify-end" : "justify-start"}`}
