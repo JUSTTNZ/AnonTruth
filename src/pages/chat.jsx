@@ -99,7 +99,7 @@ useEffect(() => {
             )}
             <div>
               <p className="text-gray-300 text-xs">{msg.username}</p>
-              <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'lg:rounded-full rounded-lg'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser .uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"}`}>
+              <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'lg:rounded-full rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser .uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"}`}>
                 <p className={`text-[12px] md:text-[18px] leading-tight`}>{msg.text}</p>
                 {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
               </div>
