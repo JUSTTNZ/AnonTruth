@@ -133,21 +133,10 @@ export default function Chat() {
               <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
             )}
             <div>
-<<<<<<< HEAD
-              <p className="text-gray-300 text-sm">{msg.username}</p>
-              <div
-                className={`max-w-xs p-2  text-sm rounded-lg ${
-                  msg.sender === "me" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"
-                }`}
-              >
-                {msg.text}
-
-=======
               <p className="text-gray-300 text-xs">{msg.username}</p>
-              <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}  px-4 py-2 flex flex-col justify-between  ${msg.sender === "me" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"}`}>
+              <div className={`max-w-xs  ${msg.text.length > 100 ? 'rounded-md' : 'lg:rounded-full rounded-lg'}  px-4 py-2 flex flex-col justify-between  ${msg.sender === "me" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"}`}>
                 <p className={`text-[12px] md:text-[18px] leading-tight `}>{msg.text}</p>
                 {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
->>>>>>> 78bcb4876e368c64892a4e8b730b99fb4f7eba03
               </div>
             </div>
          

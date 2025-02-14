@@ -12,7 +12,6 @@ export default function Login() {
   const [password, SetPassword] = useState('')
   const [error, SetError] = useState(null)
   const [btnloading, setbtnloading] = useState()
-  const [isClicked, setIsClicked] = useState(false);
   const navigate = useNavigate();
   const handleLogin = async (e) => {
 e.preventDefault()
@@ -45,17 +44,8 @@ try {
   }
 
   
-  const handleClick = () => {
-    setIsClicked(true);
-    setTimeout(() => setIsClicked(false), 200); 
-  };
   
-  const handleRegistrationNavigation = () => {
-        setIsClicked(true);
-        navigate('/register');
-        setTimeout(() => 
-            setIsClicked(false), 200);
-    }
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
@@ -117,8 +107,8 @@ try {
         </div>
 
        
-        <button type="submit" onClick={handleClick} className={`w-full bg-[#00CCFF] hover:bg-[#3e92e6] transition-all duration-500 text-white py-2 rounded-md mt-4 font-semibold
-        ${isClicked ? "scale-90" : ""}`}>
+        <button type="submit" className={`w-full bg-[#00CCFF] hover:bg-[#3e92e6] transition-all duration-500 text-white py-2 rounded-md mt-4 font-semibold
+        `}>
         {btnloading ? (
               <svg
                 className="animate-spin h-5 w-5 text-white mx-auto"
@@ -152,11 +142,7 @@ try {
      
         <div className="mt-4 flex justify-between text-sm text-gray-400">
           <a href="#" className="hover:underline">Forgot password?</a>
-<<<<<<< HEAD
-          <a href="/register" className="hover:underline">Sign up</a>
-=======
-          <p className="hover:underline" onClick={handleRegistrationClick}>Sign up</p>
->>>>>>> 78bcb4876e368c64892a4e8b730b99fb4f7eba03
+          <a href="/register" className="hover:underline" >Sign up</a>
         </div>
 
         
