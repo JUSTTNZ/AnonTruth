@@ -3,9 +3,10 @@ import { MdEmail, MdLock } from "react-icons/md";
 import { useState } from "react";
 import { auth, firestore } from "../../firebase";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider  } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider  } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import GoogleIcon from "../assets/google logo.png";
+
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,30 +20,36 @@ export default function Register() {
   const navigate = useNavigate();
   const handleLogin = async (e) => {
 e.preventDefault()
+if (password !== confirmPassword) {
+  SetError({ message: "Passwords do not match." });
+  return; 
+}
 try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     const userId = user.uid;
 
-    const UserDoc = await getDoc(doc(firestore, "users", userId));
-    if (UserDoc.exists()) {
-      setbtnloading(true);
-      setTimeout(() => {
-        setbtnloading(false);
-        navigate("/#");
-      }, 9000);
-    } else {
-      SetError("You are not authorized as a User.");
-      setTimeout(() => SetError(""), 5000);
-    }
-  } catch (err) {
+     await setDoc(doc(firestore, "users", userId),{
+      email,
+      userId,
+    });
+    console.log("User  data saved to Firestore");
+
     setbtnloading(true);
     setTimeout(() => {
       setbtnloading(false);
-      
-      SetError(err, "Invalid email or password.");
-      setTimeout(() => SetError(""), 5000);
+      navigate('/chat');
+    }, 9000);
+  } catch (error) {
+    setbtnloading(true);
+    setTimeout(() => {
+      setbtnloading(false);
+      SetError(error);
+      setTimeout(() => {
+        SetError(false);
+      }, 5000);
     }, 2000);
+    console.error("Error registering: ", error);
   }
 
   }
@@ -173,9 +180,9 @@ try {
       </form>
    
      
-        <div className="mt-4 flex justify-between text-sm text-gray-400">
-          <a href="#" className="hover:underline">Forgot password?</a>
-          <a href="#" className="hover:underline">Sign up</a>
+        <div className="mt-4 flex justify-end text-sm text-gray-400">
+
+          <a href="#" className="hover:underline">Login</a>
         </div>
         <div onClick={login} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">
           <img src={GoogleIcon} alt="" className="w-5 h-5 rounded-full" />

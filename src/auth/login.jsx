@@ -26,7 +26,7 @@ try {
       setbtnloading(true);
       setTimeout(() => {
         setbtnloading(false);
-        navigate("/#");
+        navigate("/chat");
       }, 9000);
     } else {
       SetError("You are not authorized as a User.");

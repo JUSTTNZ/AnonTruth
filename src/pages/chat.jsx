@@ -1,0 +1,189 @@
+import { useState, useEffect } from "react";
+import {  FaPaperPlane, FaPlus } from "react-icons/fa";
+import img from '../assets/anonymous.png'
+import img1 from '../assets/security.png'
+export default function Chat() {
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      text: "Look for it and give it to daddy before he leaves abeg",
+      sender: "me",
+      username: "Me",
+      avatar: img1, 
+      time: "MON 7:49 AM",
+    },
+    {
+      id: 2,
+      text: "I want to use it for something in school",
+      sender: "me",
+      username: "Me",
+      avatar: img1,
+      time: "MON 7:49 AM",
+    },
+    {
+      id: 3,
+      text: "Why will you bring it here",
+      sender: "other",
+      username: "Sister",
+      avatar: img1, 
+      time: "MON 7:49 AM",
+    },
+    {
+      id: 4,
+      text: "When you are not using it here",
+      sender: "other",
+      username: "Sister",
+      avatar: img1,
+      time: "MON 7:49 AM",
+    },
+    {
+      id: 5,
+      text: "Did you call me this morning",
+      sender: "me",
+      username: "Me",
+      avatar: img1,
+      time: "MON 7:49 AM",
+    },
+    {
+      id: 6,
+      text: "For the shoe na miss",
+      sender: "me",
+      username: "Me",
+      avatar: img1,
+      time: "MON 8:31 AM",
+    },
+    {
+      id: 7,
+      text: "Ask the person that helped you pack your stuffs",
+      sender: "other",
+      username: "Sister",
+      avatar: img1,
+      time: "MON 8:49 AM",
+    },
+    {
+      id: 8,
+      text: "Who?",
+      sender: "me",
+      username: "Me",
+      avatar: img1,
+      time: "MON 9:52 AM",
+    },
+  ]);
+
+  const [newMessage, setNewMessage] = useState("");
+
+  const [isAllowed, setIsAllowed] = useState(false);
+
+  useEffect(() => {
+    const checkTime = () => {
+      const now = new Date();
+      const day = now.getDay();
+      const hour = now.getHours();
+
+      if (day === 5 && hour >= 19 && hour < 22) {
+        setIsAllowed(true);
+      } else {
+        setIsAllowed(false);
+      }
+    };
+
+    checkTime();
+    const interval = setInterval(checkTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const sendMessage = () => {
+    if (!isAllowed) return;
+    if (newMessage.trim() === "") return;
+
+    const newMsg = {
+      id: messages.length + 1,
+      text: newMessage,
+      sender: "me",
+      username: "Me",
+      avatar: "/me-avatar.png", 
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    };
+
+    setMessages([...messages, newMsg]);
+    setNewMessage("");
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0d1a2b] flex flex-col justify-between">
+      {/* Chat Header */}
+      <div className="fixed top-0 left-0 right-0 w-full flex items-center p-4 bg-[#1a2b3c] text-white z-10">
+  <img src={img} alt="Avatar" className="w-10 h-10 rounded-full" />
+  <div className="ml-3 flex-1">
+    <p className="text-sm text-gray-300">Anonymous</p>
+  </div>
+</div>
+
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`flex items-start ${msg.sender === "me" ? "justify-end" : "justify-start"}`}
+          >
+            {msg.sender === "other" && (
+              <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
+            )}
+            <div>
+              <p className="text-gray-300 text-xs">{msg.username}</p>
+              <div
+                className={`max-w-xs p-3 rounded-lg ${
+                  msg.sender === "me" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"
+                }`}
+              >
+                {msg.text}
+                {msg.time && <p className="text-xs text-gray-400 mt-1">{msg.time}</p>}
+              </div>
+            </div>
+            {msg.sender === "me" && (
+              <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full ml-2" />
+            )}
+          </div>
+        ))}
+      </div>
+
+
+{!isAllowed && (
+  <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+    <div className="bg-[#1a2b3c] text-white p-6 rounded-lg border border-gray-500 shadow-lg w-80 text-center">
+      <h3 className="text-lg font-bold mb-2">Message Restriction</h3>
+      <p className="text-sm text-gray-300">
+        You can only send messages on <span className="font-bold text-red-400">Friday</span> between 
+        <span className="font-bold text-red-400"> 7 PM - 10 PM</span>.
+      </p>
+      <button 
+        className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold"
+        onClick={() => setIsAllowed(true)} 
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
+
+
+<div className="fixed bottom-0 left-0 right-0 p-4 bg-[#1a2b3c] flex items-center w-full">
+  <FaPlus className="text-white mx-2" />
+  <input
+    type="text"
+    className="flex-1 p-2 rounded-lg bg-gray-500 text-white outline-none"
+    placeholder="Type a message..."
+    value={newMessage}
+    disabled={!isAllowed}
+    onChange={(e) => setNewMessage(e.target.value)}
+    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+  />
+  <button onClick={sendMessage} disabled={!isAllowed} className="ml-2 text-white">
+    <FaPaperPlane className="text-white text-xl" />
+  </button>
+</div>
+
+    </div>
+  );
+}
