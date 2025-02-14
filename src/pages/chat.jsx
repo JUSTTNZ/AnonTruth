@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import {  FaPaperPlane, FaPlus } from "react-icons/fa";
+import { FaPaperPlane, FaPlus } from "react-icons/fa";
 import img from '../assets/anonymous.png'
 import img1 from '../assets/security.png'
 export default function Chat() {
@@ -9,7 +9,7 @@ export default function Chat() {
       text: "Look for it and give it to daddy before he leaves abeg",
       sender: "me",
       username: "Me",
-      avatar: img1, 
+      avatar: img1,
       time: "MON 7:49 AM",
     },
     {
@@ -25,7 +25,7 @@ export default function Chat() {
       text: "Why will you bring it here",
       sender: "other",
       username: "Sister",
-      avatar: img1, 
+      avatar: img1,
       time: "MON 7:49 AM",
     },
     {
@@ -101,7 +101,7 @@ export default function Chat() {
       text: newMessage,
       sender: "me",
       username: "Me",
-      avatar: "/me-avatar.png", 
+      avatar: "/me-avatar.png",
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
 
@@ -113,11 +113,11 @@ export default function Chat() {
     <div className="min-h-screen bg-[#0d1a2b] flex flex-col justify-between">
       {/* Chat Header */}
       <div className="fixed top-0 left-0 right-0 w-full flex items-center p-4 bg-[#1a2b3c] text-white z-10">
-  <img src={img} alt="Avatar" className="w-10 h-10 rounded-full" />
-  <div className="ml-3 flex-1">
-    <p className="text-sm text-gray-300">Anonymous</p>
-  </div>
-</div>
+        <img src={img} alt="Avatar" className="w-10 h-10 rounded-full" />
+        <div className="ml-3 flex-1">
+          <p className="text-sm text-gray-300">Anonymous</p>
+        </div>
+      </div>
 
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5">
@@ -133,6 +133,7 @@ export default function Chat() {
               <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
             )}
             <div>
+<<<<<<< HEAD
               <p className="text-gray-300 text-sm">{msg.username}</p>
               <div
                 className={`max-w-xs p-2  text-sm rounded-lg ${
@@ -141,6 +142,12 @@ export default function Chat() {
               >
                 {msg.text}
 
+=======
+              <p className="text-gray-300 text-xs">{msg.username}</p>
+              <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}  px-4 py-2 flex flex-col justify-between  ${msg.sender === "me" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"}`}>
+                <p className={`text-[12px] md:text-[18px] leading-tight `}>{msg.text}</p>
+                {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
+>>>>>>> 78bcb4876e368c64892a4e8b730b99fb4f7eba03
               </div>
             </div>
          
@@ -149,41 +156,41 @@ export default function Chat() {
       </div>
 
 
-{!isAllowed && (
-  <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
-    <div className="bg-[#1a2b3c] text-white p-6 rounded-lg border border-gray-500 shadow-lg w-80 text-center">
-      <h3 className="text-lg font-bold mb-2">Message Restriction</h3>
-      <p className="text-sm text-gray-300">
-        You can only send messages on <span className="font-bold text-red-400">Friday</span> between 
-        <span className="font-bold text-red-400"> 7 PM - 10 PM</span>.
-      </p>
-      <button 
-        className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold"
-        onClick={() => setIsAllowed(true)} 
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)}
+      {!isAllowed && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+          <div className="bg-[#1a2b3c] text-white p-6 rounded-lg border border-gray-500 shadow-lg w-80 text-center">
+            <h3 className="text-lg font-bold mb-2">Message Restriction</h3>
+            <p className="text-sm text-gray-300">
+              You can only send messages on <span className="font-bold text-red-400">Friday</span> between
+              <span className="font-bold text-red-400"> 7 PM - 10 PM</span>.
+            </p>
+            <button
+              className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold"
+              onClick={() => setIsAllowed(true)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
 
 
-<div className="fixed bottom-0 left-0 right-0 p-4 bg-[#1a2b3c] flex items-center w-full">
-  <FaPlus className="text-white mx-2" />
-  <input
-    type="text"
-    className="flex-1 p-2 rounded-lg bg-gray-500 text-white outline-none"
-    placeholder="Type a message..."
-    value={newMessage}
-    disabled={!isAllowed}
-    onChange={(e) => setNewMessage(e.target.value)}
-    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-  />
-  <button onClick={sendMessage} disabled={!isAllowed} className="ml-2 text-white">
-    <FaPaperPlane className="text-white text-xl" />
-  </button>
-</div>
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#1a2b3c] flex items-center w-full">
+        <FaPlus className="text-white mx-2" />
+        <input
+          type="text"
+          className="flex-1 p-2 rounded-lg bg-gray-500 text-white outline-none"
+          placeholder="Type a message..."
+          value={newMessage}
+          disabled={!isAllowed}
+          onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        />
+        <button onClick={sendMessage} disabled={!isAllowed} className="ml-2 text-white">
+          <FaPaperPlane className="text-white text-xl" />
+        </button>
+      </div>
 
     </div>
   );

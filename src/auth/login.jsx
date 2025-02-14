@@ -44,10 +44,18 @@ try {
 
   }
 
+  
   const handleClick = () => {
     setIsClicked(true);
     setTimeout(() => setIsClicked(false), 200); 
   };
+  
+  const handleRegistrationNavigation = () => {
+        setIsClicked(true);
+        navigate('/register');
+        setTimeout(() => 
+            setIsClicked(false), 200);
+    }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
@@ -144,10 +152,14 @@ try {
      
         <div className="mt-4 flex justify-between text-sm text-gray-400">
           <a href="#" className="hover:underline">Forgot password?</a>
+<<<<<<< HEAD
           <a href="/register" className="hover:underline">Sign up</a>
+=======
+          <p className="hover:underline" onClick={handleRegistrationClick}>Sign up</p>
+>>>>>>> 78bcb4876e368c64892a4e8b730b99fb4f7eba03
         </div>
 
-     
+        
    
       </div>
     </div>
