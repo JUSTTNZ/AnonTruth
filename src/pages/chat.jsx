@@ -110,19 +110,19 @@ useEffect(() => {
       </div>
 
       {!isAllowed && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 flex justify-center items-center  bg-opacity-50">
           <div className="bg-[#1a2b3c] text-white p-6 rounded-lg border border-gray-500 shadow-lg w-80 text-center">
             <h3 className="text-lg font-bold mb-2">Message Restriction</h3>
             <p className="text-sm text-gray-300">
               You can only send messages on <span className="font-bold text-red-400">Friday</span> between
               <span className="font-bold text-red-400"> 7 PM - 10 PM</span>.
             </p>
-            <button
+            {/* <button
               className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold"
               onClick={() => setIsAllowed(true)}
             >
               Close
-            </button>
+            </button> */}
           </div>
         </div>
       )}
