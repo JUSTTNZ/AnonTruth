@@ -52,7 +52,7 @@ try {
   
   const handleRegistrationNavigation = () => {
         setIsClicked(true);
-        navigate('/login');
+        navigate('/register');
         setTimeout(() => 
             setIsClicked(false), 200);
     }
@@ -152,7 +152,7 @@ try {
      
         <div className="mt-4 flex justify-between text-sm text-gray-400">
           <a href="#" className="hover:underline">Forgot password?</a>
-          <p className="hover:underline">Sign up</p>
+          <p className="hover:underline" onClick={handleRegistrationClick}>Sign up</p>
         </div>
 
         
