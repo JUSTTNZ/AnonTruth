@@ -145,7 +145,7 @@ try {
      
         <div className="mt-4 flex justify-between text-sm text-gray-400">
           <a href="#" className="hover:underline">Forgot password?</a>
-          <a href="#" className="hover:underline">Sign up</a>
+          <a href="/register" className="hover:underline">Sign up</a>
         </div>
 
         
