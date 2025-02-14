@@ -59,7 +59,7 @@ try {
     try {
       const result = await signInWithPopup(auth, provider);
       setUser(result.user); // Set logged-in user details
-      navigate('/chats')
+      navigate('/chat')
     } catch (error) {
       console.error("Error signing in:", error.message);
     }
