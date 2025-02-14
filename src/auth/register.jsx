@@ -4,7 +4,7 @@ import { useState } from "react";
 import { auth, firestore } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider  } from "firebase/auth";
-import { doc,  setDoc } from "firebase/firestore";
+import { doc,  getDoc,  setDoc } from "firebase/firestore";
 import GoogleIcon from "../assets/google logo.png";
 
 
@@ -13,7 +13,6 @@ export default function Register() {
   const [email, SetEmail] = useState('')
   const [password, SetPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [user, setUser] = useState(null);
   const [error, SetError] = useState(null)
   const [btnloading, setbtnloading] = useState()
 
@@ -56,21 +55,38 @@ try {
 
   }
 
+
   const GoggleRegister = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      setUser(result.user); // Set logged-in user details
-      navigate('/chat')
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+      const userId = user.uid;
+  
+     
+      const userDocRef = doc(firestore, "users", userId); 
+      const userDoc = await getDoc(userDocRef); 
+  
+      if (!userDoc.exists()) {
+
+        await setDoc(userDocRef, {
+          email: user.email,
+          userId,
+        });
+        console.log("User  data saved to Firestore");
+      } else {
+        console.log("User  already exists in Firestore");
+      }
+  
+      
+      navigate('/chat');
     } catch (error) {
+      SetError("An error occurred during sign-in. Please try again.", error);
       console.error("Error signing in:", error);
     }
   };
 
-  // const handleClick = () => {
-  //   setIsClicked(true);
-  //   setTimeout(() => setIsClicked(false), 200); 
-  // };
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">

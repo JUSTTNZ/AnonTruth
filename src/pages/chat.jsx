@@ -1,77 +1,13 @@
 import { useState, useEffect } from "react";
 import { FaPaperPlane, FaPlus } from "react-icons/fa";
-import img from '../assets/anonymous.png'
-import img1 from '../assets/security.png'
+import img from '../assets/anonymous.png';
+import img1 from '../assets/security.png';
+import { collection, getDocs, addDoc, onSnapshot, Timestamp } from 'firebase/firestore';
+import { firestore, auth } from '../../firebase'; 
+
 export default function Chat() {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      text: "Look for it and give it to daddy before he leaves abeg",
-      sender: "me",
-      username: "Me",
-      avatar: img1,
-      time: "MON 7:49 AM",
-    },
-    {
-      id: 2,
-      text: "I want to use it for something in school",
-      sender: "me",
-      username: "Me",
-      avatar: img1,
-      time: "MON 7:49 AM",
-    },
-    {
-      id: 3,
-      text: "Why will you bring it here",
-      sender: "other",
-      username: "Sister",
-      avatar: img1,
-      time: "MON 7:49 AM",
-    },
-    {
-      id: 4,
-      text: "When you are not using it here",
-      sender: "other",
-      username: "Sister",
-      avatar: img1,
-      time: "MON 7:49 AM",
-    },
-    {
-      id: 5,
-      text: "Did you call me this morning",
-      sender: "me",
-      username: "Me",
-      avatar: img1,
-      time: "MON 7:49 AM",
-    },
-    {
-      id: 6,
-      text: "For the shoe na miss",
-      sender: "me",
-      username: "Me",
-      avatar: img1,
-      time: "MON 8:31 AM",
-    },
-    {
-      id: 7,
-      text: "Ask the person that helped you pack your stuffs",
-      sender: "other",
-      username: "Sister",
-      avatar: img1,
-      time: "MON 8:49 AM",
-    },
-    {
-      id: 8,
-      text: "Who?",
-      sender: "me",
-      username: "Me",
-      avatar: img1,
-      time: "MON 9:52 AM",
-    },
-  ]);
-
+  const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-
   const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
@@ -92,26 +28,44 @@ export default function Chat() {
     return () => clearInterval(interval);
   }, []);
 
-  const sendMessage = () => {
+  // Fetch messages from Firestore
+  useEffect(() => {
+    const messagesRef = collection(firestore, 'messages'); 
+    const unsubscribe = onSnapshot(messagesRef, (snapshot) => {
+      const fetchedMessages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setMessages(fetchedMessages);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const sendMessage = async () => {
     if (!isAllowed) return;
     if (newMessage.trim() === "") return;
 
     const newMsg = {
-      id: messages.length + 1,
       text: newMessage,
-      sender: "me",
-      username: "Me",
-      avatar: "/me-avatar.png",
+      sender: auth.currentUser.uid, 
+      username: "Me", 
+      avatar: img1, 
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      timestamp: Timestamp.now(), 
     };
 
-    setMessages([...messages, newMsg]);
-    setNewMessage("");
+    try {
+      await addDoc(collection(firestore, 'messages'), newMsg); // Send message to Firestore
+      setNewMessage("");
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#0d1a2b] flex flex-col justify-between">
-      {/* Chat Header */}
+    
       <div className="fixed top-0 left-0 right-0 w-full flex items-center p-4 bg-[#1a2b3c] text-white z-10">
         <img src={img} alt="Avatar" className="w-10 h-10 rounded-full" />
         <div className="ml-3 flex-1">
@@ -119,31 +73,25 @@ export default function Chat() {
         </div>
       </div>
 
-
       <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5">
-
         {messages.map((msg) => (
-            
           <div
             key={msg.id}
-            className={`flex items-start ${msg.sender === "me" ? "justify-end" : "justify-start"}`}
+            className={`flex items-start ${msg.sender === auth.currentUser .uid ? "justify-end" : "justify-start"}`}
           >
-            
-            {msg.sender === "other" && (
+            {msg.sender !== auth.currentUser.uid && (
               <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
             )}
             <div>
               <p className="text-gray-300 text-xs">{msg.username}</p>
-              <div className={`max-w-xs  ${msg.text.length > 100 ? 'rounded-md' : 'lg:rounded-full rounded-lg'}  px-4 py-2 flex flex-col justify-between  ${msg.sender === "me" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"}`}>
-                <p className={`text-[12px] md:text-[18px] leading-tight `}>{msg.text}</p>
+              <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'lg:rounded-full rounded-lg'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser .uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"}`}>
+                <p className={`text-[12px] md:text-[18px] leading-tight`}>{msg.text}</p>
                 {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
               </div>
             </div>
-         
           </div>
         ))}
       </div>
-
 
       {!isAllowed && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
@@ -163,8 +111,6 @@ export default function Chat() {
         </div>
       )}
 
-
-
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#1a2b3c] flex items-center w-full">
         <FaPlus className="text-white mx-2" />
         <input
@@ -180,7 +126,6 @@ export default function Chat() {
           <FaPaperPlane className="text-white text-xl" />
         </button>
       </div>
-
     </div>
   );
 }
