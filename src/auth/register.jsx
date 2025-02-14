@@ -4,7 +4,7 @@ import { useState } from "react";
 import { auth, firestore } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider  } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc,  getDoc,  setDoc } from "firebase/firestore";
 import GoogleIcon from "../assets/google logo.png";
 
 
@@ -13,12 +13,13 @@ export default function Register() {
   const [email, SetEmail] = useState('')
   const [password, SetPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [user, setUser] = useState(null);
   const [error, SetError] = useState(null)
   const [btnloading, setbtnloading] = useState()
-  const [isClicked, setIsClicked] = useState(false);
+
+
   const navigate = useNavigate();
-  const handleLogin = async (e) => {
+
+const handleRegister = async (e) => {
 e.preventDefault()
 if (password !== confirmPassword) {
   SetError({ message: "Passwords do not match." });
@@ -54,21 +55,38 @@ try {
 
   }
 
-  const login = async () => {
+
+  const GoggleRegister = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      setUser(result.user); // Set logged-in user details
-      navigate('/chat')
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+      const userId = user.uid;
+  
+     
+      const userDocRef = doc(firestore, "users", userId); 
+      const userDoc = await getDoc(userDocRef); 
+  
+      if (!userDoc.exists()) {
+
+        await setDoc(userDocRef, {
+          email: user.email,
+          userId,
+        });
+        console.log("User  data saved to Firestore");
+      } else {
+        console.log("User  already exists in Firestore");
+      }
+  
+      
+      navigate('/chat');
     } catch (error) {
-      console.error("Error signing in:", error.message);
+      SetError("An error occurred during sign-in. Please try again.", error);
+      console.error("Error signing in:", error);
     }
   };
 
-  const handleClick = () => {
-    setIsClicked(true);
-    setTimeout(() => setIsClicked(false), 200); 
-  };
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
@@ -84,7 +102,7 @@ try {
        {error.message}
         </div>
   )}
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleRegister}>
       <div className="mt-4">
           <label className="block text-sm font-medium"> Email</label>
           <div className="flex items-center border border-gray-600 rounded-md px-3 mt-1">
@@ -147,8 +165,8 @@ try {
         </div>
 
        
-        <button type="submit" onClick={handleClick} className={`w-full bg-[#00CCFF] hover:bg-[#3e92e6] transition-all duration-500 text-white py-2 rounded-md mt-4 font-semibold
-        ${isClicked ? "scale-90" : ""}`}>
+        <button type="submit"  className={`w-full bg-[#00CCFF] hover:bg-[#3e92e6] transition-all duration-500 text-white py-2 rounded-md mt-4 font-semibold
+      `}>
         {btnloading ? (
               <svg
                 className="animate-spin h-5 w-5 text-white mx-auto"
@@ -182,9 +200,9 @@ try {
      
         <div className="mt-4 flex justify-end text-sm text-gray-400">
 
-          <a href="#" className="hover:underline">Login</a>
+          <a href="/login" className="hover:underline">Login</a>
         </div>
-        <div onClick={login} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">
+        <div onClick={GoggleRegister} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">
           <img src={GoogleIcon} alt="" className="w-5 h-5 rounded-full" />
           <p>Sign up
            with Google</p>
