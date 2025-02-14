@@ -20,7 +20,7 @@ export default function Register() {
 
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+const handleRegister = async (e) => {
 e.preventDefault()
 if (password !== confirmPassword) {
   SetError({ message: "Passwords do not match." });
