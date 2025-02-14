@@ -186,7 +186,8 @@ try {
         </div>
         <div onClick={login} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">
           <img src={GoogleIcon} alt="" className="w-5 h-5 rounded-full" />
-          <p>Sign in with Google</p>
+          <p>Sign up
+           with Google</p>
         </div>
       </div>
     </div>
