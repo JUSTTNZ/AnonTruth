@@ -120,25 +120,26 @@ export default function Chat() {
       </div>
 
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5">
+
         {messages.map((msg) => (
+            
           <div
             key={msg.id}
             className={`flex items-start ${msg.sender === "me" ? "justify-end" : "justify-start"}`}
           >
+            
             {msg.sender === "other" && (
               <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
             )}
             <div>
               <p className="text-gray-300 text-xs">{msg.username}</p>
-              <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}  px-4 py-2 flex flex-col justify-between  ${msg.sender === "me" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"}`}>
+              <div className={`max-w-xs  ${msg.text.length > 100 ? 'rounded-md' : 'lg:rounded-full rounded-lg'}  px-4 py-2 flex flex-col justify-between  ${msg.sender === "me" ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"}`}>
                 <p className={`text-[12px] md:text-[18px] leading-tight `}>{msg.text}</p>
                 {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
               </div>
             </div>
-            {msg.sender === "me" && (
-              <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full ml-2" />
-            )}
+         
           </div>
         ))}
       </div>
