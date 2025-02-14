@@ -50,7 +50,7 @@ try {
     setTimeout(() => setIsClicked(false), 200); 
   };
   
-  const handleLoginClick = () => {
+  const handleRegistrationNavigation = () => {
         setIsClicked(true);
         navigate('/login');
         setTimeout(() => 
