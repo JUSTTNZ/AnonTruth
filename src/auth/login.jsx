@@ -49,6 +49,13 @@ try {
     setIsClicked(true);
     setTimeout(() => setIsClicked(false), 200); 
   };
+  
+  const handleLoginClick = () => {
+        setIsClicked(true);
+        navigate('/login');
+        setTimeout(() => 
+            setIsClicked(false), 200);
+    }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
@@ -145,7 +152,7 @@ try {
      
         <div className="mt-4 flex justify-between text-sm text-gray-400">
           <a href="#" className="hover:underline">Forgot password?</a>
-          <a href="/register" className="hover:underline">Sign up</a>
+          <p className="hover:underline">Sign up</p>
         </div>
 
         
