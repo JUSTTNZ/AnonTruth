@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaPaperPlane, FaPlus } from "react-icons/fa";
 import img from '../assets/anonymous.png';
 import img1 from '../assets/security.png';
@@ -15,7 +15,7 @@ export default function Chat() {
   const [newMessage, setNewMessage] = useState("");
   const [isAllowed, setIsAllowed] = useState(false);
   const [username, setUsername] = useState(RandomUsername("anonymous")); 
-
+  const messagesEndRef = useRef(null)
   useEffect(() => {
     const checkTime = () => {
       const now = new Date();
@@ -71,7 +71,12 @@ export default function Chat() {
       console.error('Error sending message:', error);
     }
   };
-
+// Scroll to the last message whenever messages change
+useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
   return (
     <div className="min-h-screen bg-[#0d1a2b] flex flex-col justify-between">
     
@@ -101,6 +106,7 @@ export default function Chat() {
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       {!isAllowed && (
