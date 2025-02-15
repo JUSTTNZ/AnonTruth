@@ -119,18 +119,22 @@ export default function Chat() {
                     const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
 
                     return (
-                        <motion.div
-                            key={msg.id}
-                            className={`flex items-start ${msg.sender === auth.currentUser.uid ? "justify-end" : "justify-start"}`}
-                            drag="x"
-                            dragConstraints={{ left: 0, right: 100 }}
-                            onDragEnd={(event, info) => {
-                                if (info.offset.x > 50) {
-                                    setReplyTo(msg);
-                                }
-                            }}
-                            whileTap={{ scale: 0.95 }}
-                        >
+                      <motion.div
+                          key={msg.id}
+                          className={`flex items-start ${msg.sender === auth.currentUser.uid ? "justify-end" : "justify-start"}`}
+                          drag="x"
+                          dragConstraints={{ left: -50, right: 50 }} // Limits how far it can be swiped
+                          dragElastic={0.2} // Makes swipe feel natural
+                          dragTransition={{ bounceStiffness: 200, bounceDamping: 10 }} // Controls bounce effect
+                          animate={{ x: 0 }} // Ensures it returns to original position
+                          onDragEnd={(event, info) => {
+                              if (info.offset.x > 30) { // If swiped slightly right
+                                  setReplyTo(msg);
+                              }
+                          }}
+                          whileTap={{ scale: 0.95}}
+                      >
+
                             {msg.sender !== auth.currentUser.uid && (
                                 <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
                             )}
