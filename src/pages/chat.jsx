@@ -77,6 +77,8 @@ export default function Chat() {
             })
         );
 
+        setReactionPopup(null);
+
         try {
             const docSnapshot = await getDocs(collection(firestore, "messages"));
             const docToUpdate = docSnapshot.docs.find((doc) => doc.id === msgId);
@@ -92,7 +94,7 @@ export default function Chat() {
             console.error("Error updating reaction:", error);
         }
 
-        setReactionPopup(null);
+        
     };
 
     useEffect(() => {
