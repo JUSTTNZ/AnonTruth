@@ -145,7 +145,7 @@ export default function Chat() {
                                 <p className="text-gray-300 text-xs">{msg.username}</p>
                                 <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} rounded-md`}>
                                     {msg.replyTo && (
-                                        <div className="text-xs text-gray-300 italic mb-1">
+                                        <div className="text-xs text-gray-400 italic mb-1">
                                             Replying to {msg.replyTo.username}: "{msg.replyTo.text}"
                                         </div>
                                     )}
@@ -193,9 +193,14 @@ export default function Chat() {
                     onChange={(e) => setNewMessage(e.target.value)}
                     // onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 />
-                <button onClick={sendMessage} className="ml-2 text-white">
-                    <FaPaperPlane className="text-xl" />
-                </button>
+                <motion.button
+                  onClick={sendMessage}
+                  className="ml-2 text-white"
+                  whileTap={{ scale: 0.8 }} // Shrinks slightly when clicked
+                  transition={{ type: "spring", stiffness: 300, damping: 10 }} // Smooth bounce effect
+                >
+                  <FaPaperPlane className="text-xl" />
+                </motion.button>
             </div>
         </div>
     );
