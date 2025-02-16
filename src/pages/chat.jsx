@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { FaPaperPlane, FaPlus, FaRegSmile } from "react-icons/fa";
-
 import img from "../assets/anonymous.png";
 import img1 from "../assets/security.png";
 import { collection, getDocs, addDoc, updateDoc, doc, onSnapshot, Timestamp } from "firebase/firestore";
@@ -14,6 +13,7 @@ export default function Chat() {
     const [newMessage, setNewMessage] = useState("");
     const [replyTo, setReplyTo] = useState(null);
     const [reactionPopup, setReactionPopup] = useState(null);
+    const [position, setPosition] = useState(0);
     const [username, setUsername] = useState(RandomUsername("anonymous"));
     const messagesEndRef = useRef(null);
 
@@ -123,16 +123,19 @@ export default function Chat() {
                           key={msg.id}
                           className={`flex items-start ${msg.sender === auth.currentUser.uid ? "justify-end" : "justify-start"}`}
                           drag="x"
-                          dragConstraints={{ left: -50, right: 50 }} // Limits how far it can be swiped
+                          dragConstraints={{ left: -5, right: 0 }} // Limits how far it can be swiped
                           dragElastic={0.2} // Makes swipe feel natural
-                          dragTransition={{ bounceStiffness: 200, bounceDamping: 10 }} // Controls bounce effect
-                          animate={{ x: 0 }} // Ensures it returns to original position
+                          dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }} // Controls bounce effect
+                          initial={{ x: 0 }}
+                          animate={{ x: position }} // Ensures it returns to original position
                           onDragEnd={(event, info) => {
                               if (info.offset.x > 30) { // If swiped slightly right
                                   setReplyTo(msg);
                               }
+                              setPosition(0);
                           }}
-                          whileTap={{ scale: 0.95}}
+                          whileTap={{ scale: 0.98}}
+                          transition={{ type: "spring", stiffness: 150, damping: 10 }}
                       >
 
                             {msg.sender !== auth.currentUser.uid && (
@@ -140,9 +143,9 @@ export default function Chat() {
                             )}
                             <div className="relative">
                                 <p className="text-gray-300 text-xs">{msg.username}</p>
-                                <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'lg:rounded-full rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} rounded-md`}>
+                                <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} rounded-md`}>
                                     {msg.replyTo && (
-                                        <div className="text-xs text-gray-400 italic mb-1">
+                                        <div className="text-xs text-gray-300 italic mb-1">
                                             Replying to {msg.replyTo.username}: "{msg.replyTo.text}"
                                         </div>
                                     )}
@@ -180,15 +183,15 @@ export default function Chat() {
             </div>
 
             {/* MESSAGE INPUT */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#1a2b3c] flex items-center w-full">
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0d1a2b] flex items-center w-full">
                 <FaPlus className="text-white mx-2" />
                 <input
                     type="text"
-                    className="flex-1 p-2 rounded-lg bg-gray-500 text-white outline-none"
+                    className="flex-1 p-2 border border-gray-500 rounded-full bg-[#0d1a2b] text-white outline-none"
                     placeholder="Type a message..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                    // onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 />
                 <button onClick={sendMessage} className="ml-2 text-white">
                     <FaPaperPlane className="text-xl" />
