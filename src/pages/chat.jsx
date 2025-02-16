@@ -185,7 +185,7 @@ export default function Chat() {
             {/* MESSAGE INPUT */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0d1a2b] flex items-center w-full">
                 <FaPlus className="text-white mx-2" />
-                <textarea
+                <input
                     type="text"
                     className="flex-1 p-2 border border-gray-500 rounded-full bg-[#0d1a2b] text-white outline-none"
                     placeholder="Type a message..."
