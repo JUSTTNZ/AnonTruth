@@ -122,7 +122,7 @@ export default function Chat() {
             </div>
 
             {/* CHAT MESSAGES */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
                 {messages.map((msg) => {
                     const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
 
@@ -151,13 +151,18 @@ export default function Chat() {
                             )}
                             <div className="relative">
                                 <p className="text-gray-300 text-xs">{msg.username}</p>
-                                <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} rounded-md`}>
+                                <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} rounded-md overflow-hidden`}>
                                     {msg.replyTo && (
-                                        <div className="text-xs text-gray-400 italic mb-1">
-                                            Replying to {msg.replyTo.username}: "{msg.replyTo.text}"
+                                        <div className=" mb-1 flex flex-col ">
+                                         <p className="text-xs text-gray-400 italic">
+                                         Replying to {msg.replyTo.username}:
+                                          </p>
+                                              <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
+                                            `{msg.replyTo.text}`
+                                              </p>
                                         </div>
                                     )}
-                                    <p className="text-[12px] md:text-[18px] leading-tight">{msg.text}</p>
+                                    <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
                                     {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
                                 </div>
 
@@ -193,11 +198,11 @@ export default function Chat() {
             {/* MESSAGE INPUT */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0d1a2b] flex flex-col items-center w-full">
             {replyTo && (
-                <div className="w-full flex items-center bg-gray-800 text-white p-2 rounded-md mb-2">
+                <div className="w-full flex items-center bg-gray-800 text-white p-2 rounded-t-md mb-2">
                     {/* Replying to Message Preview */}
                     <div className="flex-1 p-3 bg-gray-900 rounded-t-md border-l-8 border-blue-500">
                         <p className="text-xs text-gray-400">Replying to {replyTo.username}</p>
-                        <p className="text-sm italic text-gray-300 truncate">{replyTo.text}</p>
+                        <p className="text-sm italic text-gray-300 truncate max-w-[15ch]">{replyTo.text}</p>
                     </div>
                     
                     {/* Cancel Button */}
