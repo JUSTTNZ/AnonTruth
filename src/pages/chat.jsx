@@ -192,20 +192,24 @@ export default function Chat() {
 
             {/* MESSAGE INPUT */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0d1a2b] flex flex-col items-center w-full">
-                {replyTo && (
-                    <div className="w-full flex items-center bg-gray-800 text-white p-2 rounded-md mb-2">
-                        <div className="flex-1">
-                            <p className="text-xs text-gray-400">Replying to {replyTo.username}</p>
-                            <p className="text-sm italic text-gray-300 truncate">{replyTo.text}</p>
-                        </div>
-                        <button 
-                            onClick={() => setReplyTo(null)}
-                            className="ml-3 text-gray-400 hover:text-red-400"
-                        >
-                            ✖
-                        </button>
+            {replyTo && (
+                <div className="w-full flex items-center bg-gray-800 text-white p-2 rounded-md mb-2">
+                    {/* Replying to Message Preview */}
+                    <div className="flex-1 p-3 bg-gray-900 rounded-t-md border-l-8 border-blue-500">
+                        <p className="text-xs text-gray-400">Replying to {replyTo.username}</p>
+                        <p className="text-sm italic text-gray-300 truncate">{replyTo.text}</p>
                     </div>
-                )}
+                    
+                    {/* Cancel Button */}
+                    <button 
+                        onClick={() => setReplyTo(null)}
+                        className="ml-3 text-gray-400 hover:text-red-400"
+                    >
+                        ✖
+                    </button>
+                </div>
+            )}
+
                 <div className="flex items-center w-full">
                     <FaPlus className="text-white mx-2" />
                     <div className="w-full min-h-[48px] max-h-[70px] flex items-center border border-gray-500 rounded-3xl bg-[#0d1a2b] overflow-hidden">
