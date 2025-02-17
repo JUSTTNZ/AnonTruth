@@ -122,7 +122,7 @@ export default function Chat() {
             </div>
 
             {/* CHAT MESSAGES */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
                 {messages.map((msg) => {
                     const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
 
@@ -157,7 +157,7 @@ export default function Chat() {
                                             Replying to {msg.replyTo.username}: `{msg.replyTo.text}`
                                         </div>
                                     )}
-                                    <p className="text-[12px] md:text-[18px] leading-tight">{msg.text}</p>
+                                    <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
                                     {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
                                 </div>
 
