@@ -37,7 +37,7 @@ export const Welcome = () => {
                     <p onClick={handleClick} className={`absolute mt-4 transform -translate-x-1/2 bg-[#00CCFF] font-bold text-lg text-white px-6 py-2 rounded-full hover:bg-[#3e92e6] hover:scale-105   transition-all duration-1000 
                     ${isVisible ? "bottom-[120px]" : "bottom-[-200px] opacity-0" }
                     ${isClicked ? "bg-[#3e92e6] scale-90" : "bg-[#00CCFF]"}
-                    animate-floating shadow-lg`}>Getting started</p>
+                    animate-floating shadow-lg`}>Get started</p>
                 </div>
             </div>
         </>
