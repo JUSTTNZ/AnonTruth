@@ -16,6 +16,7 @@ export default function Chat() {
     const [position, setPosition] = useState(0);
     const [username, setUsername] = useState(RandomUsername("anonymous"));
     const messagesEndRef = useRef(null);
+    const textareaRef = useRef(null);
 
     useEffect(() => {
         const messagesRef = collection(firestore, "messages");
@@ -102,6 +103,13 @@ export default function Chat() {
             messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
     }, [messages]);
+    
+    useEffect(() => {
+        if (textareaRef.current) {
+        textareaRef.current.style.height = "48px"; 
+        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, [newMessage]);
 
     return (
         <div className="min-h-screen bg-[#0d1a2b] flex flex-col justify-between">
@@ -183,24 +191,48 @@ export default function Chat() {
             </div>
 
             {/* MESSAGE INPUT */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0d1a2b] flex items-center w-full">
-                <FaPlus className="text-white mx-2" />
-                <input
-                    type="text"
-                    className="flex-1 p-2 border border-gray-500 rounded-full bg-[#0d1a2b] text-white outline-none"
-                    placeholder="Type a message..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    // onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                />
-                <motion.button
-                  onClick={sendMessage}
-                  className="ml-2 text-white"
-                  whileTap={{ scale: 0.8 }} // Shrinks slightly when clicked
-                  transition={{ type: "spring", stiffness: 300, damping: 10 }} // Smooth bounce effect
-                >
-                  <FaPaperPlane className="text-xl" />
-                </motion.button>
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0d1a2b] flex flex-col items-center w-full">
+            {replyTo && (
+                <div className="w-full flex items-center bg-gray-800 text-white p-2 rounded-md mb-2">
+                    {/* Replying to Message Preview */}
+                    <div className="flex-1 p-3 bg-gray-900 rounded-t-md border-l-8 border-blue-500">
+                        <p className="text-xs text-gray-400">Replying to {replyTo.username}</p>
+                        <p className="text-sm italic text-gray-300 truncate">{replyTo.text}</p>
+                    </div>
+                    
+                    {/* Cancel Button */}
+                    <button 
+                        onClick={() => setReplyTo(null)}
+                        className="ml-3 text-gray-400 hover:text-red-400"
+                    >
+                        ✖
+                    </button>
+                </div>
+            )}
+
+                <div className="flex items-center w-full">
+                    <FaPlus className="text-white mx-2" />
+                    <div className="w-full min-h-[48px] max-h-[70px] flex items-center border border-gray-500 rounded-3xl bg-[#0d1a2b] overflow-hidden">
+                        <textarea
+                            ref={textareaRef}
+                            className="w-full px-4 py-3 bg-transparent text-white outline-none placeholder-gray-400 resize-none overflow-y-auto leading-normal"
+                            placeholder="Type a message..."
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            rows={1}
+                        />
+                    </div>
+
+                    <motion.button
+                    onClick={sendMessage}
+                    className="ml-2 text-white"
+                    whileTap={{ scale: 0.8 }} // Shrinks slightly when clicked
+                    transition={{ type: "spring", stiffness: 300, damping: 10 }} // Smooth bounce effect
+                    >
+                    <FaPaperPlane className="text-xl" />
+                    </motion.button>
+                </div>
+                
             </div>
         </div>
     );
