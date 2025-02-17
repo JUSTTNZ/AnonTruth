@@ -151,10 +151,10 @@ export default function Chat() {
                             )}
                             <div className="relative">
                                 <p className="text-gray-300 text-xs">{msg.username}</p>
-                                <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} rounded-md`}>
+                                <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} rounded-md overflow-hidden`}>
                                     {msg.replyTo && (
                                         <div className="text-xs text-gray-400 italic mb-1">
-                                            Replying to {msg.replyTo.username}: "{msg.replyTo.text}"
+                                            Replying to {msg.replyTo.username}: `{msg.replyTo.text}`
                                         </div>
                                     )}
                                     <p className="text-[12px] md:text-[18px] leading-tight">{msg.text}</p>
@@ -197,7 +197,7 @@ export default function Chat() {
                     {/* Replying to Message Preview */}
                     <div className="flex-1 p-3 bg-gray-900 rounded-t-md border-l-8 border-blue-500">
                         <p className="text-xs text-gray-400">Replying to {replyTo.username}</p>
-                        <p className="text-sm italic text-gray-300 truncate">{replyTo.text}</p>
+                        <p className="text-sm italic text-gray-300 truncate max-w-[15ch]">{replyTo.text}</p>
                     </div>
                     
                     {/* Cancel Button */}
