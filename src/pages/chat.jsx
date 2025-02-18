@@ -177,23 +177,20 @@ export default function Chat() {
                                     <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
                                     {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
                                 </div>
-
-                            {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-    <div className="absolute left-0 bottom-[-18px] flex space-x-1 text-white text-xs">
-        {Object.entries(msg.reactions).map(([emoji, userIds]) => (
-            <button
-                key={emoji}
-                className={`flex items-center space-x-1 p-1 rounded ${
-                    userIds.includes(auth.currentUser.uid) ? "bg-blue-500" : "bg-gray-700"
-                }`}
-                onClick={() => addReaction(msg.id, emoji)}
-            >
-                <span>{emoji}</span> {/* Display emoji */}
-                <span>{userIds.length}</span> {/* Display count of users who reacted with this emoji */}
-            </button>
-        ))}
-    </div>
-)}
+<div className="absolute left-0 bottom-[-18px] flex space-x-1 text-white text-xs">
+    {msg.reactions && Object.entries(msg.reactions).map(([emoji, userIds]) => (
+        <button
+            key={emoji}
+            className={`flex items-center space-x-1 p-1 rounded ${
+                userIds.includes(auth.currentUser.uid) ? "bg-blue-500" : "bg-gray-700"
+            }`}
+            onClick={() => addReaction(msg.id, emoji)}
+        >
+            <span>{emoji}</span> {/* Display emoji */}
+            <span>{userIds.length}</span> {/* Display count of users who reacted with this emoji */}
+        </button>
+    ))}
+</div>
 
                                 {/* Reaction Button */}
                                 <button
