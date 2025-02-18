@@ -148,83 +148,97 @@ const addReaction = async (msgId, reaction) => {
                     const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
 
                     return (
-                      <motion.div
-                          key={msg.id}
-                          className={`flex items-start ${msg.sender === auth.currentUser.uid ? "justify-end" : "justify-start"}`}
-                          drag="x"
-                          dragConstraints={{ left: -5, right: 0 }} // Limits how far it can be swiped
-                          dragElastic={0.2} // Makes swipe feel natural
-                          dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }} // Controls bounce effect
-                          initial={{ x: 0 }}
-                          animate={{ x: position }} // Ensures it returns to original position
-                          onDragEnd={(event, info) => {
-                              if (info.offset.x > 30) { // If swiped slightly right
-                                  setReplyTo(msg);
-                              }
-                              setPosition(0);
-                          }}
-                          whileTap={{ scale: 0.98}}
-                          transition={{ type: "spring", stiffness: 150, damping: 10 }}
-                      >
-
-                            {msg.sender !== auth.currentUser.uid && (
-                                <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
-                            )}
-                            <div className="relative">
-                                <p className="text-gray-300 text-xs">{msg.username}</p>
-                                <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} rounded-md overflow-hidden`}>
-                                    {msg.replyTo && (
-                                        <div className=" mb-1 flex flex-col ">
-                                         <p className="text-xs text-gray-400 italic">
-                                         Replying to {msg.replyTo.username}:
-                                          </p>
-                                              <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
+                        <motion.div
+                        key={msg.id}
+                        className={`flex items-start ${
+                            msg.sender === auth.currentUser.uid ? "justify-end" : "justify-start"
+                        }`}
+                        drag="x"
+                        dragConstraints={{ left: -5, right: 0 }}
+                        dragElastic={0.2}
+                        dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }}
+                        initial={{ x: 0 }}
+                        animate={{ x: position }}
+                        onDragEnd={(event, info) => {
+                            if (info.offset.x > 30) {
+                                setReplyTo(msg);
+                            }
+                            setPosition(0);
+                        }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: "spring", stiffness: 150, damping: 10 }}
+                    >
+                        {/* Avatar for Sender */}
+                        {msg.sender !== auth.currentUser.uid && (
+                            <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
+                        )}
+                    
+                        {/* Message Bubble */}
+                        <div className="relative">
+                            <p className="text-gray-300 text-xs">{msg.username}</p>
+                    
+                            <div className={`
+                                min-w-[100px] 
+                                max-w-[75%] 
+                                ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}
+                                px-4 py-2 flex flex-col justify-between 
+                                ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} 
+                                rounded-md overflow-hidden
+                            `}>
+                                {/* Reply Info */}
+                                {msg.replyTo && (
+                                    <div className="mb-1 flex flex-col">
+                                        <p className="text-xs text-gray-400 italic">Replying to {msg.replyTo.username}:</p>
+                                        <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
                                             `{msg.replyTo.text}`
-                                              </p>
-                                        </div>
-                                    )}
-                                    <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
-                                    {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
-                                </div>
-<div className="absolute left-0 bottom-[-18px] flex space-x-1 text-white text-xs">
-    {msg.reactions && Object.entries(msg.reactions).map(([emoji, userIds]) => (
-        <button
-            key={emoji}
-            className={`flex items-center space-x-1 p-1 rounded ${
-                userIds.includes(auth.currentUser.uid) ? "bg-blue-500" : "bg-gray-700"
-            }`}
-            onClick={() => addReaction(msg.id, emoji)}
-        >
-            <span>{emoji}</span> {/* Display emoji */}
-            <span>{userIds.length}</span> {/* Display count of users who reacted with this emoji */}
-        </button>
-    ))}
-</div>
-
-                                {/* Reaction Button */}
-                                <button
-                                    onClick={() => setReactionPopup(msg.id)}
-                                    className="absolute bottom-[-16px] right-0 text-gray-300 text-sm"
-                                >
-                                    {userReaction ? (
-                                        <span className="text-xl">{userReaction}</span> // Show selected reaction
-                                    ) : (
-                                        <FaRegSmile className="text-gray-400 text-xl" /> // Default gray smiley
-                                    )}
-                                </button>
-
-                                {/* Reaction Picker */}
-                                {reactionPopup === msg.id && (
-                                    <div className="absolute top-[-40px] right-0 bg-gray-800 text-white p-1 rounded-md flex space-x-1">
-                                        {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
-                                            <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
-                                                {emoji}
-                                            </button>
-                                        ))}
+                                        </p>
                                     </div>
                                 )}
+                    
+                                {/* Message Text */}
+                                <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
+                    
+                                {/* Timestamp */}
+                                {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
                             </div>
-                        </motion.div>
+                    
+                            {/* Reactions Container (No Absolute Position) */}
+                            {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                                <div className="mt-1 flex flex-wrap items-center gap-1 bg-gray-800 text-white px-2 py-1 rounded-md w-fit">
+                                    {Object.entries(msg.reactions).map(([emoji, userIds]) => (
+                                        <span key={emoji} className="flex items-center space-x-1 text-xs">
+                                            <span>{emoji}</span>
+                                            <span>{userIds.length}</span>
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                    
+                            {/* Reaction Button */}
+                            <button
+                                onClick={() => setReactionPopup(msg.id)}
+                                className="mt-1 text-gray-300 text-sm flex items-center"
+                            >
+                                {userReaction ? (
+                                    <span className="text-xl">{userReaction}</span>
+                                ) : (
+                                    <FaRegSmile className="text-gray-400 text-xl" />
+                                )}
+                            </button>
+                    
+                            {/* Reaction Picker */}
+                            {reactionPopup === msg.id && (
+                                <div className="absolute top-[-40px] right-0 bg-gray-800 text-white p-1 rounded-md flex space-x-1">
+                                    {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
+                                        <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
+                                            {emoji}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                    
                     );
                 })}
                 <div ref={messagesEndRef} />
