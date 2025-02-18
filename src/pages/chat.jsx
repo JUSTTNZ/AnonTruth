@@ -40,28 +40,45 @@ useEffect(() => {
 }, []);
     
 
-    const sendMessage = async () => {
-        if (newMessage.trim() === "") return;
+const sendMessage = async () => {
+    if (newMessage.trim() === "") return;
 
-        const newMsg = {
-            text: newMessage,
-            sender: auth.currentUser.uid,
-            username,
-            avatar: img1,
-            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-            timestamp: Timestamp.now(),
-            replyTo: replyTo ? { text: replyTo.text, username: replyTo.username } : null,
-            reactions: {} // Empty reactions initially
-        };
-
-        try {
-            await addDoc(collection(firestore, "messages"), newMsg);
-            setNewMessage("");
-            setReplyTo(null);
-        } catch (error) {
-            console.error("Error sending message:", error);
-        }
+    const newMsg = {
+        text: newMessage,
+        sender: auth.currentUser.uid,
+        username,
+        avatar: img1,
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        timestamp: Timestamp.now(),
+        replyTo: replyTo ? { text: replyTo.text, username: replyTo.username } : null,
+        reactions: {}, // Empty reactions initially
+        status: "sending", // Initial status
     };
+
+    let docRef; // Declare docRef outside the try block
+
+    try {
+        // Add the message to Firestore
+        docRef = await addDoc(collection(firestore, "messages"), newMsg);
+
+        // Update the message status to "sent" after successful send
+        await updateDoc(doc(firestore, "messages", docRef.id), {
+            status: "sent",
+        });
+
+        setNewMessage("");
+        setReplyTo(null);
+    } catch (error) {
+        console.error("Error sending message:", error);
+
+        // Update the message status to "failed" if sending fails
+        if (docRef) { // Check if docRef is defined
+            await updateDoc(doc(firestore, "messages", docRef.id), {
+                status: "failed",
+            });
+        }
+    }
+};
 
 const addReaction = async (msgId, reaction) => {
     const messageRef = doc(firestore, "messages", msgId);
@@ -119,11 +136,19 @@ const addReaction = async (msgId, reaction) => {
 };
     
 
-    useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [messages]);
+
+// Track the previous length of the messages array
+const prevMessagesLengthRef = useRef(messages.length);
+
+// Scroll to bottom only when a new message is added
+useEffect(() => {
+    if (messages.length > prevMessagesLengthRef.current) {
+        // New message added, scroll to bottom
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+    // Update the previous length
+    prevMessagesLengthRef.current = messages.length;
+}, [messages]);
     
     useEffect(() => {
         if (textareaRef.current) {
@@ -144,105 +169,119 @@ const addReaction = async (msgId, reaction) => {
 
             {/* CHAT MESSAGES */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
-                {messages.map((msg) => {
-                    const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
+    {messages.map((msg) => {
+        const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
 
-                    return (
-                        <motion.div
-                        key={msg.id}
-                        className={`flex items-start ${
-                            msg.sender === auth.currentUser.uid ? "justify-end" : "justify-start"
-                        }`}
-                        drag="x"
-                        dragConstraints={{ left: -5, right: 0 }}
-                        dragElastic={0.2}
-                        dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }}
-                        initial={{ x: 0 }}
-                        animate={{ x: position }}
-                        onDragEnd={(event, info) => {
-                            if (info.offset.x > 30) {
-                                setReplyTo(msg);
-                            }
-                            setPosition(0);
-                        }}
-                        whileTap={{ scale: 0.98 }}
-                        transition={{ type: "spring", stiffness: 150, damping: 10 }}
-                    >
-                        {/* Avatar for Sender */}
-                        {msg.sender !== auth.currentUser.uid && (
-                            <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
-                        )}
-                    
-                        {/* Message Bubble */}
-                        <div className="relative">
-                            <p className="text-gray-300 text-xs">{msg.username}</p>
-                    
-                            <div className={`
-                                min-w-[100px] 
-                                max-w-[75%] 
-                                ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}
-                                px-4 py-2 flex flex-col justify-between 
-                                ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} 
-                                rounded-md overflow-hidden
-                            `}>
-                                {/* Reply Info */}
-                                {msg.replyTo && (
-                                    <div className="mb-1 flex flex-col">
-                                        <p className="text-xs text-gray-400 italic">Replying to {msg.replyTo.username}:</p>
-                                        <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
-                                            `{msg.replyTo.text}`
-                                        </p>
-                                    </div>
-                                )}
-                    
-                                {/* Message Text */}
-                                <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
-                    
-                                {/* Timestamp */}
-                                {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
+        return (
+            <motion.div
+                key={msg.id}
+                className={`flex items-start ${
+                    msg.sender === auth.currentUser.uid ? "justify-end" : "justify-start"
+                }`}
+                drag="x"
+                dragConstraints={{ left: -5, right: 0 }}
+                dragElastic={0.2}
+                dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }}
+                initial={{ x: 0 }}
+                animate={{ x: position }}
+                onDragEnd={(event, info) => {
+                    if (info.offset.x > 30) {
+                        setReplyTo(msg);
+                    }
+                    setPosition(0);
+                }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 150, damping: 10 }}
+            >
+                {/* Avatar for Sender */}
+                {msg.sender !== auth.currentUser.uid && (
+                    <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
+                )}
+
+                {/* Message Bubble */}
+                <div className="relative">
+                    <p className="text-gray-300 text-xs">{msg.username}</p>
+
+                    <div className={`
+                        min-w-[100px] 
+                        max-w-[75%] 
+                        ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}
+                        px-4 py-2 flex flex-col justify-between 
+                        ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} 
+                        rounded-md overflow-hidden
+                    `}>
+                        {/* Reply Info */}
+                        {msg.replyTo && (
+                            <div className="mb-1 flex flex-col">
+                                <p className="text-xs text-gray-400 italic">Replying to {msg.replyTo.username}:</p>
+                                <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
+                                    `{msg.replyTo.text}`
+                                </p>
                             </div>
-                    
-                            {/* Reactions Container (No Absolute Position) */}
-                            {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                                <div className="mt-1 flex flex-wrap items-center gap-1 bg-gray-800 text-white px-2 py-1 rounded-md w-fit">
-                                    {Object.entries(msg.reactions).map(([emoji, userIds]) => (
-                                        <span key={emoji} className="flex items-center space-x-1 text-xs">
-                                            <span>{emoji}</span>
-                                            <span>{userIds.length}</span>
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                    
-                            {/* Reaction Button */}
-                            <button
-                                onClick={() => setReactionPopup(msg.id)}
-                                className="mt-1 text-gray-300 text-sm flex items-center"
-                            >
-                                {userReaction ? (
-                                    <span className="text-xl">{userReaction}</span>
-                                ) : (
-                                    <FaRegSmile className="text-gray-400 text-xl" />
-                                )}
-                            </button>
-                    
-                            {/* Reaction Picker */}
-                            {reactionPopup === msg.id && (
-                                <div className="absolute top-[-40px] right-0 bg-gray-800 text-white p-1 rounded-md flex space-x-1">
-                                    {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
-                                        <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
-                                            {emoji}
-                                        </button>
-                                    ))}
+                        )}
+
+                        {/* Message Text */}
+                        <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
+
+                        {/* Timestamp and Status */}
+                        <div className="flex items-center justify-end space-x-1">
+                            {msg.time && <p className="text-[8px] text-gray-200">{msg.time}</p>}
+                            {msg.sender === auth.currentUser.uid && (
+                                <div className="text-[8px] text-gray-200">
+                                    {msg.status === "sending" && (
+                                        <span className="animate-spin">⏳</span> // Loading spinner
+                                    )}
+                                    {msg.status === "sent" && (
+                                        <span>✔️</span> // Checkmark
+                                    )}
+                                    {msg.status === "failed" && (
+                                        <span className="text-red-500">❌</span> // Error icon
+                                    )}
                                 </div>
                             )}
                         </div>
-                    </motion.div>
-                    
-                    );
-                })}
-                <div ref={messagesEndRef} />
-            </div>
+                    </div>
+
+                    {/* Reactions Container */}
+                    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                        <div className="mt-1 flex flex-wrap items-center gap-1 bg-gray-800 text-white px-2 py-1 rounded-md w-fit">
+                            {Object.entries(msg.reactions).map(([emoji, userIds]) => (
+                                <span key={emoji} className="flex items-center space-x-1 text-xs">
+                                    <span>{emoji}</span>
+                                    <span>{userIds.length}</span>
+                                </span>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Reaction Button */}
+                    <button
+                        onClick={() => setReactionPopup(msg.id)}
+                        className="mt-1 text-gray-300 text-sm flex items-center"
+                    >
+                        {userReaction ? (
+                            <span className="text-xl">{userReaction}</span>
+                        ) : (
+                            <FaRegSmile className="text-gray-400 text-xl" />
+                        )}
+                    </button>
+
+                    {/* Reaction Picker */}
+                    {reactionPopup === msg.id && (
+                        <div className="absolute top-[-40px] right-0 bg-gray-800 text-white p-1 rounded-md flex space-x-1">
+                            {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
+                                <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
+                                    {emoji}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+        );
+    })}
+    <div ref={messagesEndRef} />
+</div>
 
             {/* MESSAGE INPUT */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0d1a2b] flex flex-col items-center w-full">
