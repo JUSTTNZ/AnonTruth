@@ -18,26 +18,26 @@ export default function Chat() {
     const messagesEndRef = useRef(null);
     const textareaRef = useRef(null);
 
-    useEffect(() => {
-        const messagesRef = collection(firestore, "messages");
-        const unsubscribe = onSnapshot(messagesRef, (snapshot) => {
-            const fetchedMessages = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            fetchedMessages.sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
-    
-            // Preserve existing reactions in state
-            setMessages((prevMessages) =>
-                fetchedMessages.map((msg) => {
-                    const existingMsg = prevMessages.find(m => m.id === msg.id);
-                    return existingMsg ? { ...msg, reactions: existingMsg.reactions || msg.reactions } : msg;
-                })
-            );
-        });
-    
-        return () => unsubscribe();
-    }, []);
+useEffect(() => {
+    const messagesRef = collection(firestore, "messages");
+    const unsubscribe = onSnapshot(messagesRef, (snapshot) => {
+        const fetchedMessages = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        fetchedMessages.sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
+
+        console.log("Fetched Messages from Firestore:", fetchedMessages); // Debugging
+
+        // Update local state with the latest reactions
+        setMessages(fetchedMessages.map((msg) => ({
+            ...msg,
+            reactions: msg.reactions || {}, // Ensure reactions is always an object
+        })));
+    });
+
+    return () => unsubscribe();
+}, []);
     
 
     const sendMessage = async () => {
@@ -63,50 +63,59 @@ export default function Chat() {
         }
     };
 
- const addReaction = async (msgId, reaction) => {
+const addReaction = async (msgId, reaction) => {
     const messageRef = doc(firestore, "messages", msgId);
     const userId = auth.currentUser.uid;
 
-    // Update local state first
-    setMessages((prevMessages) =>
-        prevMessages.map((msg) => {
+    console.log("Adding Reaction:", { msgId, reaction, userId }); // Debugging
+
+    // Step 1: Update local state
+    setMessages((prevMessages) => {
+        const updatedMessages = prevMessages.map((msg) => {
             if (msg.id === msgId) {
+                // Create a copy of the existing reactions or initialize as an empty object
                 const updatedReactions = { ...(msg.reactions || {}) };
 
                 // Remove the user's previous reaction (if any)
                 for (const key in updatedReactions) {
                     updatedReactions[key] = updatedReactions[key].filter(id => id !== userId);
                     if (updatedReactions[key].length === 0) {
-                        delete updatedReactions[key]; 
+                        delete updatedReactions[key]; // Remove the reaction if no users are left
                     }
                 }
 
                 // Add the new reaction (if it's not the same as the previous one)
                 if (reaction) {
                     if (!updatedReactions[reaction]) {
-                        updatedReactions[reaction] = [];
+                        updatedReactions[reaction] = []; // Initialize the array if it doesn't exist
                     }
-                    updatedReactions[reaction].push(userId);
+                    updatedReactions[reaction].push(userId); // Add the user to the reaction
                 }
 
+                console.log("Updated Reactions for Message:", msgId, updatedReactions); // Debugging
+
+                // Return the updated message with the new reactions
                 return { ...msg, reactions: updatedReactions };
             }
-            return msg;
-        })
-    );
+            return msg; // Return unchanged messages
+        });
 
-    setReactionPopup(null);
-
-    try {
-        // Get the updated message from the state
-        const updatedMessage = messages.find(msg => msg.id === msgId);
+        // Step 2: Update Firestore with the latest reactions
+        const updatedMessage = updatedMessages.find((msg) => msg.id === msgId);
         if (updatedMessage) {
+            console.log("Updating Firestore with Reactions:", updatedMessage.reactions); // Debugging
+
             // Update Firestore with the updated reactions
-            await updateDoc(messageRef, { reactions: updatedMessage.reactions || {} });
+            updateDoc(messageRef, { reactions: updatedMessage.reactions || {} })
+                .then(() => console.log("Firestore updated successfully!"))
+                .catch((error) => console.error("Error updating Firestore:", error));
         }
-    } catch (error) {
-        console.error("Error updating reaction:", error);
-    }
+
+        return updatedMessages; // Return the updated messages array
+    });
+
+    // Close the reaction popup
+    setReactionPopup(null);
 };
     
 
