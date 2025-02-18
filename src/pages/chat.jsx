@@ -26,11 +26,19 @@ export default function Chat() {
                 ...doc.data(),
             }));
             fetchedMessages.sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
-            setMessages(fetchedMessages);
+    
+            // Preserve existing reactions in state
+            setMessages((prevMessages) =>
+                fetchedMessages.map((msg) => {
+                    const existingMsg = prevMessages.find(m => m.id === msg.id);
+                    return existingMsg ? { ...msg, reactions: existingMsg.reactions || msg.reactions } : msg;
+                })
+            );
         });
-
+    
         return () => unsubscribe();
     }, []);
+    
 
     const sendMessage = async () => {
         if (newMessage.trim() === "") return;
@@ -58,45 +66,51 @@ export default function Chat() {
     const addReaction = async (msgId, reaction) => {
         const messageRef = doc(firestore, "messages", msgId);
         const userId = auth.currentUser.uid;
-
+    
         setMessages((prevMessages) =>
             prevMessages.map((msg) => {
                 if (msg.id === msgId) {
-                    const updatedReactions = { ...msg.reactions };
-
-                    if (updatedReactions[userId] === reaction) {
-                        // If the user clicks the same reaction, remove it (unreact)
-                        delete updatedReactions[userId];
-                    } else {
-                        // Otherwise, add or change reaction
-                        updatedReactions[userId] = reaction;
+                    const updatedReactions = { ...(msg.reactions || {}) };
+    
+                    // Remove the user's previous reaction (if any)
+                    for (const key in updatedReactions) {
+                        updatedReactions[key] = updatedReactions[key].filter(id => id !== userId);
+                        if (updatedReactions[key].length === 0) {
+                            delete updatedReactions[key]; 
+                        }
                     }
-
+    
+                    // Add the new reaction (if it's not the same as the previous one)
+                    if (reaction) {
+                        if (!updatedReactions[reaction]) {
+                            updatedReactions[reaction] = [];
+                        }
+                        updatedReactions[reaction].push(userId);
+                    }
+    
                     return { ...msg, reactions: updatedReactions };
                 }
                 return msg;
             })
         );
-
+    
         setReactionPopup(null);
-
+    
         try {
-            const docSnapshot = await getDocs(collection(firestore, "messages"));
-            const docToUpdate = docSnapshot.docs.find((doc) => doc.id === msgId);
-
-            if (docToUpdate) {
-                if (docToUpdate.data().reactions?.[userId] === reaction) {
-                    await updateDoc(messageRef, { [`reactions.${userId}`]: "" });
-                } else {
-                    await updateDoc(messageRef, { [`reactions.${userId}`]: reaction });
-                }
-            }
+            // Update Firestore *with the updated reactions*
+            await updateDoc(messageRef, { reactions: messages.find(msg => msg.id === msgId)?.reactions || {} });
+    
+            // Manually update the state after Firestore update (to avoid snapshot resetting UI)
+            setMessages((prevMessages) =>
+                prevMessages.map((msg) =>
+                    msg.id === msgId ? { ...msg, reactions: messages.find(m => m.id === msgId)?.reactions || {} } : msg
+                )
+            );
         } catch (error) {
             console.error("Error updating reaction:", error);
         }
-
-        
     };
+    
 
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -166,6 +180,23 @@ export default function Chat() {
                                     {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
                                 </div>
 
+                                {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                                    <div className="absolute left-0 bottom-[-18px] flex space-x-1 text-white text-xs">
+                                        {Object.entries(msg.reactions).map(([emoji, userIds]) => (
+                                            <button
+                                                key={emoji}
+                                                className={`flex items-center space-x-1 p-1 rounded ${
+                                                    userIds.includes(auth.currentUser.uid) ? "bg-blue-500" : "bg-gray-700"
+                                                }`}
+                                                onClick={() => addReaction(msg.id, emoji)}
+                                            >
+                                                <span>{emoji}</span> {/* Display emoji */}
+                                                <span>{userIds.length}</span> {/* Display count of users who reacted with this emoji */}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
                                 {/* Reaction Button */}
                                 <button
                                     onClick={() => setReactionPopup(msg.id)}
@@ -208,7 +239,7 @@ export default function Chat() {
                     {/* Cancel Button */}
                     <button 
                         onClick={() => setReplyTo(null)}
-                        className="ml-3 text-gray-400 hover:text-red-400"
+                        className="ml-3 text-gray-400 hover:text-red-400 border border-gray-600 rounded-full p-1"
                     >
                         ✖
                     </button>
