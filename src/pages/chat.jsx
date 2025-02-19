@@ -221,7 +221,7 @@ useEffect(() => {
                         )}
 
                         {/* Message Text */}
-                        <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
+                        <p className="text-[12px] md:text-[18px] leading-tight whitespace-pre-wrap">{msg.text}</p>
 
                         {/* Timestamp and Status */}
                         <div className="flex items-center justify-end space-x-1">
@@ -310,11 +310,12 @@ useEffect(() => {
                     <div className="w-full min-h-[45px] max-h-[70px] flex items-center border border-gray-500 rounded-3xl bg-[#0d1a2b] overflow-hidden">
                         <textarea
                             ref={textareaRef}
-                            className="w-full px-4 py-3 bg-transparent text-white outline-none placeholder-gray-400 resize-none overflow-y-auto leading-normal"
+                            className="w-full px-4 py-3 bg-transparent text-white outline-none placeholder-gray-400 resize-none overflow-y-auto leading-normal whitespace-pre-wrap"
                             placeholder="Type a message..."
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                             rows={1}
+                            style={{ maxHeight: "70px" }} // Ensure the textarea doesn't exceed the max height
                         />
                     </div>
 
