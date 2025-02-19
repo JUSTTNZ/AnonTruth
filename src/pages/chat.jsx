@@ -18,105 +18,137 @@ export default function Chat() {
     const messagesEndRef = useRef(null);
     const textareaRef = useRef(null);
 
-    useEffect(() => {
-        const messagesRef = collection(firestore, "messages");
-        const unsubscribe = onSnapshot(messagesRef, (snapshot) => {
-            const fetchedMessages = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
-            fetchedMessages.sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
+useEffect(() => {
+    const messagesRef = collection(firestore, "messages");
+    const unsubscribe = onSnapshot(messagesRef, (snapshot) => {
+        const fetchedMessages = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
+        fetchedMessages.sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
+
+        console.log("Fetched Messages from Firestore:", fetchedMessages); // Debugging
+
+        // Update local state with the latest reactions
+        setMessages(fetchedMessages.map((msg) => ({
+            ...msg,
+            reactions: msg.reactions || {}, // Ensure reactions is always an object
+        })));
+    });
+
+    return () => unsubscribe();
+}, []);
     
-            // Preserve existing reactions in state
-            setMessages((prevMessages) =>
-                fetchedMessages.map((msg) => {
-                    const existingMsg = prevMessages.find(m => m.id === msg.id);
-                    return existingMsg ? { ...msg, reactions: existingMsg.reactions || msg.reactions } : msg;
-                })
-            );
+
+const sendMessage = async () => {
+    if (newMessage.trim() === "") return;
+
+    const newMsg = {
+        text: newMessage,
+        sender: auth.currentUser.uid,
+        username,
+        avatar: img1,
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        timestamp: Timestamp.now(),
+        replyTo: replyTo ? { text: replyTo.text, username: replyTo.username } : null,
+        reactions: {}, // Empty reactions initially
+        status: "sending", // Initial status
+    };
+
+    let docRef; // Declare docRef outside the try block
+
+    try {
+        // Add the message to Firestore
+        docRef = await addDoc(collection(firestore, "messages"), newMsg);
+
+        // Update the message status to "sent" after successful send
+        await updateDoc(doc(firestore, "messages", docRef.id), {
+            status: "sent",
         });
-    
-        return () => unsubscribe();
-    }, []);
-    
 
-    const sendMessage = async () => {
-        if (newMessage.trim() === "") return;
+        setNewMessage("");
+        setReplyTo(null);
+    } catch (error) {
+        console.error("Error sending message:", error);
 
-        const newMsg = {
-            text: newMessage,
-            sender: auth.currentUser.uid,
-            username,
-            avatar: img1,
-            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-            timestamp: Timestamp.now(),
-            replyTo: replyTo ? { text: replyTo.text, username: replyTo.username } : null,
-            reactions: {} // Empty reactions initially
-        };
-
-        try {
-            await addDoc(collection(firestore, "messages"), newMsg);
-            setNewMessage("");
-            setReplyTo(null);
-        } catch (error) {
-            console.error("Error sending message:", error);
+        // Update the message status to "failed" if sending fails
+        if (docRef) { // Check if docRef is defined
+            await updateDoc(doc(firestore, "messages", docRef.id), {
+                status: "failed",
+            });
         }
-    };
+    }
+};
 
-    const addReaction = async (msgId, reaction) => {
-        const messageRef = doc(firestore, "messages", msgId);
-        const userId = auth.currentUser.uid;
-    
-        setMessages((prevMessages) =>
-            prevMessages.map((msg) => {
-                if (msg.id === msgId) {
-                    const updatedReactions = { ...(msg.reactions || {}) };
-    
-                    // Remove the user's previous reaction (if any)
-                    for (const key in updatedReactions) {
-                        updatedReactions[key] = updatedReactions[key].filter(id => id !== userId);
-                        if (updatedReactions[key].length === 0) {
-                            delete updatedReactions[key]; 
-                        }
+const addReaction = async (msgId, reaction) => {
+    const messageRef = doc(firestore, "messages", msgId);
+    const userId = auth.currentUser.uid;
+
+    console.log("Adding Reaction:", { msgId, reaction, userId }); // Debugging
+
+    // Step 1: Update local state
+    setMessages((prevMessages) => {
+        const updatedMessages = prevMessages.map((msg) => {
+            if (msg.id === msgId) {
+                // Create a copy of the existing reactions or initialize as an empty object
+                const updatedReactions = { ...(msg.reactions || {}) };
+
+                // Remove the user's previous reaction (if any)
+                for (const key in updatedReactions) {
+                    updatedReactions[key] = updatedReactions[key].filter(id => id !== userId);
+                    if (updatedReactions[key].length === 0) {
+                        delete updatedReactions[key]; // Remove the reaction if no users are left
                     }
-    
-                    // Add the new reaction (if it's not the same as the previous one)
-                    if (reaction) {
-                        if (!updatedReactions[reaction]) {
-                            updatedReactions[reaction] = [];
-                        }
-                        updatedReactions[reaction].push(userId);
-                    }
-    
-                    return { ...msg, reactions: updatedReactions };
                 }
-                return msg;
-            })
-        );
-    
-        setReactionPopup(null);
-    
-        try {
-            // Update Firestore *with the updated reactions*
-            await updateDoc(messageRef, { reactions: messages.find(msg => msg.id === msgId)?.reactions || {} });
-    
-            // Manually update the state after Firestore update (to avoid snapshot resetting UI)
-            setMessages((prevMessages) =>
-                prevMessages.map((msg) =>
-                    msg.id === msgId ? { ...msg, reactions: messages.find(m => m.id === msgId)?.reactions || {} } : msg
-                )
-            );
-        } catch (error) {
-            console.error("Error updating reaction:", error);
+
+                // Add the new reaction (if it's not the same as the previous one)
+                if (reaction) {
+                    if (!updatedReactions[reaction]) {
+                        updatedReactions[reaction] = []; // Initialize the array if it doesn't exist
+                    }
+                    updatedReactions[reaction].push(userId); // Add the user to the reaction
+                }
+
+                console.log("Updated Reactions for Message:", msgId, updatedReactions); // Debugging
+
+                // Return the updated message with the new reactions
+                return { ...msg, reactions: updatedReactions };
+            }
+            return msg; // Return unchanged messages
+        });
+
+        // Step 2: Update Firestore with the latest reactions
+        const updatedMessage = updatedMessages.find((msg) => msg.id === msgId);
+        if (updatedMessage) {
+            console.log("Updating Firestore with Reactions:", updatedMessage.reactions); // Debugging
+
+            // Update Firestore with the updated reactions
+            updateDoc(messageRef, { reactions: updatedMessage.reactions || {} })
+                .then(() => console.log("Firestore updated successfully!"))
+                .catch((error) => console.error("Error updating Firestore:", error));
         }
-    };
+
+        return updatedMessages; // Return the updated messages array
+    });
+
+    // Close the reaction popup
+    setReactionPopup(null);
+};
     
 
-    useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [messages]);
+
+// Track the previous length of the messages array
+const prevMessagesLengthRef = useRef(messages.length);
+
+// Scroll to bottom only when a new message is added
+useEffect(() => {
+    if (messages.length > prevMessagesLengthRef.current) {
+        // New message added, scroll to bottom
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+    // Update the previous length
+    prevMessagesLengthRef.current = messages.length;
+}, [messages]);
     
     useEffect(() => {
         if (textareaRef.current) {
@@ -137,49 +169,40 @@ export default function Chat() {
 
             {/* CHAT MESSAGES */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
-                {messages.map((msg) => {
-                    const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
+    {messages.map((msg) => {
+        const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
 
-                    return (
-                      <motion.div
-                          key={msg.id}
-                          className={`flex items-start ${msg.sender === auth.currentUser.uid ? "justify-end" : "justify-start"}`}
-                          drag="x"
-                          dragConstraints={{ left: -5, right: 0 }} // Limits how far it can be swiped
-                          dragElastic={0.2} // Makes swipe feel natural
-                          dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }} // Controls bounce effect
-                          initial={{ x: 0 }}
-                          animate={{ x: position }} // Ensures it returns to original position
-                          onDragEnd={(event, info) => {
-                              if (info.offset.x > 30) { // If swiped slightly right
-                                  setReplyTo(msg);
-                              }
-                              setPosition(0);
-                          }}
-                          whileTap={{ scale: 0.98}}
-                          transition={{ type: "spring", stiffness: 150, damping: 10 }}
-                      >
+        return (
+            <motion.div
+                key={msg.id}
+                className={`flex items-start ${
+                    msg.sender === auth.currentUser.uid ? "justify-end" : "justify-start"
+                }`}
+                drag="x"
+                dragConstraints={{ left: -5, right: 0 }}
+                dragElastic={0.2}
+                dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }}
+                initial={{ x: 0 }}
+                animate={{ x: position }}
+                onDragEnd={(event, info) => {
+                    if (info.offset.x > 30) {
+                        setReplyTo(msg);
+                    }
+                    setPosition(0);
+                }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 150, damping: 10 }}
+            >
+                {/* Avatar for Sender */}
+                {msg.sender !== auth.currentUser.uid && (
+                    <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
+                )}
 
-                            {msg.sender !== auth.currentUser.uid && (
-                                <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
-                            )}
-                            <div className="relative">
-                                <p className="text-gray-300 text-xs">{msg.username}</p>
-                                <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} rounded-md overflow-hidden`}>
-                                    {msg.replyTo && (
-                                        <div className=" mb-1 flex flex-col ">
-                                         <p className="text-xs text-gray-400 italic">
-                                         Replying to {msg.replyTo.username}:
-                                          </p>
-                                              <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
-                                            `{msg.replyTo.text}`
-                                              </p>
-                                        </div>
-                                    )}
-                                    <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
-                                    {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
-                                </div>
+                {/* Message Bubble */}
+                <div className="relative">
+                    <p className="text-gray-300 text-xs">{msg.username}</p>
 
+<<<<<<< HEAD
                                 {msg.reactions && Object.keys(msg.reactions).length > 0 && (
                                 <div className="absolute left-0 bottom-[-18px] flex space-x-1 text-white text-xs">
                                     {/* Calculate total reactions count */}
@@ -227,12 +250,88 @@ export default function Chat() {
                                         ))}
                                     </div>
                                 )}
+=======
+                    <div className={`
+                        min-w-[100px] 
+                        max-w-[75%] 
+                        ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}
+                        px-4 py-2 flex flex-col justify-between 
+                        ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} 
+                        rounded-md overflow-hidden
+                    `}>
+                        {/* Reply Info */}
+                        {msg.replyTo && (
+                            <div className="mb-1 flex flex-col">
+                                <p className="text-xs text-gray-400 italic">Replying to {msg.replyTo.username}:</p>
+                                <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
+                                    `{msg.replyTo.text}`
+                                </p>
+>>>>>>> b0df4668a8d91baa5e97b68c32f93449c3c15fe9
                             </div>
-                        </motion.div>
-                    );
-                })}
-                <div ref={messagesEndRef} />
-            </div>
+                        )}
+
+                        {/* Message Text */}
+                        <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
+
+                        {/* Timestamp and Status */}
+                        <div className="flex items-center justify-end space-x-1">
+                            {msg.time && <p className="text-[8px] text-gray-200">{msg.time}</p>}
+                            {msg.sender === auth.currentUser.uid && (
+                                <div className="text-[8px] text-gray-200">
+                                    {msg.status === "sending" && (
+                                        <span className="animate-spin">⏳</span> // Loading spinner
+                                    )}
+                                    {msg.status === "sent" && (
+                                        <span>✔️</span> // Checkmark
+                                    )}
+                                    {msg.status === "failed" && (
+                                        <span className="text-red-500">❌</span> // Error icon
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Reactions Container */}
+                    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                        <div className="mt-1 flex flex-wrap items-center gap-1 bg-gray-800 text-white px-2 py-1 rounded-md w-fit">
+                            {Object.entries(msg.reactions).map(([emoji, userIds]) => (
+                                <span key={emoji} className="flex items-center space-x-1 text-xs">
+                                    <span>{emoji}</span>
+                                    <span>{userIds.length}</span>
+                                </span>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Reaction Button */}
+                    <button
+                        onClick={() => setReactionPopup(msg.id)}
+                        className="mt-1 text-gray-300 text-sm flex items-center"
+                    >
+                        {userReaction ? (
+                            <span className="text-xl">{userReaction}</span>
+                        ) : (
+                            <FaRegSmile className="text-gray-400 text-xl" />
+                        )}
+                    </button>
+
+                    {/* Reaction Picker */}
+                    {reactionPopup === msg.id && (
+                        <div className="absolute top-[-40px] right-0 bg-gray-800 text-white p-1 rounded-md flex space-x-1">
+                            {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
+                                <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
+                                    {emoji}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+        );
+    })}
+    <div ref={messagesEndRef} />
+</div>
 
             {/* MESSAGE INPUT */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0d1a2b] flex flex-col items-center w-full">

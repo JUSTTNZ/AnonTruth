@@ -40,7 +40,7 @@ try {
     setTimeout(() => {
       setbtnloading(false);
       navigate('/chat');
-    }, 9000);
+    }, 3000);
   } catch (error) {
     setbtnloading(true);
     setTimeout(() => {
@@ -76,6 +76,7 @@ try {
         console.log("User  data saved to Firestore");
       } else {
         console.log("User  already exists in Firestore");
+        navigate('/chat');
       }
   
       

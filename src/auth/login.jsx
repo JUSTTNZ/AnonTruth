@@ -3,8 +3,9 @@ import { MdEmail, MdLock } from "react-icons/md";
 import { useState } from "react";
 import { auth, firestore } from "../../firebase";
 import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import GoogleIcon from "../assets/google logo.png";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +44,35 @@ try {
 
   }
 
+  const GoggleRegister = async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        const userCredential = await signInWithPopup(auth, provider);
+        const user = userCredential.user;
+        const userId = user.uid;
+    
+       
+        const userDocRef = doc(firestore, "users", userId); 
+        const userDoc = await getDoc(userDocRef); 
+    
+        if (!userDoc.exists()) {
   
+          await setDoc(userDocRef, {
+            email: user.email,
+            userId,
+          });
+          console.log("User  data saved to Firestore");
+        } else {
+          console.log("User  already exists in Firestore");
+        }
+    
+        
+        navigate('/chat');
+      } catch (error) {
+        SetError("An error occurred during sign-in. Please try again.", error);
+        console.error("Error signing in:", error);
+      }
+    };
   
 
 
@@ -144,7 +173,11 @@ try {
           <a href="#" className="hover:underline">Forgot password?</a>
           <a href="/register" className="hover:underline" >Sign up</a>
         </div>
-
+ <div onClick={GoggleRegister} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">
+          <img src={GoogleIcon} alt="" className="w-5 h-5 rounded-full" />
+          <p>Sign in
+           with Google</p>
+        </div>
         
    
       </div>
