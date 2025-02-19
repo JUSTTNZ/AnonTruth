@@ -244,13 +244,15 @@ useEffect(() => {
 
                     {/* Reactions Container */}
                     {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                        <div className="mt-1 flex flex-wrap items-center gap-1 bg-gray-800 text-white px-2 py-1 rounded-md w-fit">
-                            {Object.entries(msg.reactions).map(([emoji, userIds]) => (
-                                <span key={emoji} className="flex items-center space-x-1 text-xs">
-                                    <span>{emoji}</span>
-                                    <span>{userIds.length}</span>
-                                </span>
+                        <div className="absolute left-0 bottom-[-18px] flex space-x-[-4px] text-white text-xs">
+                            {/* Display all emojis without individual counts */}
+                            {Object.keys(msg.reactions).map((emoji) => (
+                                <span key={emoji}>{emoji}</span>
                             ))}
+                            {/* Display the total reactions count */}
+                            <span className=" pl-4 text-gray-400">
+                                {Object.values(msg.reactions).reduce((total, userIds) => total + userIds.length, 0)}
+                            </span>
                         </div>
                     )}
 
@@ -305,7 +307,7 @@ useEffect(() => {
 
                 <div className="flex items-center w-full">
                     <FaPlus className="text-white mx-2" />
-                    <div className="w-full min-h-[48px] max-h-[70px] flex items-center border border-gray-500 rounded-3xl bg-[#0d1a2b] overflow-hidden">
+                    <div className="w-full min-h-[45px] max-h-[70px] flex items-center border border-gray-500 rounded-3xl bg-[#0d1a2b] overflow-hidden">
                         <textarea
                             ref={textareaRef}
                             className="w-full px-4 py-3 bg-transparent text-white outline-none placeholder-gray-400 resize-none overflow-y-auto leading-normal"
