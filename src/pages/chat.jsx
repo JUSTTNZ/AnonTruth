@@ -198,87 +198,87 @@ useEffect(() => {
                     <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
                 )}
 
-                {/* Message Bubble */}
-                <div className="relative">
-                    <p className="text-gray-300 text-xs">{msg.username}</p>
+{/* Message Bubble */}
+<div className="relative">
+    <p className="text-gray-300 text-xs">{msg.username}</p>
 
-                    <div className={`
-                        min-w-[100px] 
-                        max-w-[75%] 
-                        ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}
-                        px-4 py-2 flex flex-col justify-between 
-                        ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} 
-                        rounded-md overflow-hidden
-                    `}>
-                        {/* Reply Info */}
-                        {msg.replyTo && (
-                            <div className="mb-1 flex flex-col">
-                                <p className="text-xs text-gray-400 italic">Replying to {msg.replyTo.username}:</p>
-                                <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
-                                    `{msg.replyTo.text}`
-                                </p>
-                            </div>
-                        )}
+    <div className={`
+        min-w-[100px] 
+        max-w-[75%] 
+        ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}
+        px-4 py-2 flex flex-col justify-between 
+        ${msg.sender === auth.currentUser.uid ? "ml-auto mr-2 bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} 
+        rounded-md overflow-hidden
+    `}>
+        {/* Reply Info */}
+        {msg.replyTo && (
+            <div className="mb-1 flex flex-col">
+                <p className="text-xs text-gray-400 italic">Replying to {msg.replyTo.username}:</p>
+                <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
+                    `{msg.replyTo.text}`
+                </p>
+            </div>
+        )}
 
-                        {/* Message Text */}
-                        <p className="text-[12px] md:text-[18px] leading-tight whitespace-pre-wrap">{msg.text}</p>
+        {/* Message Text */}
+        <p className="text-[12px] md:text-[18px] leading-tight whitespace-pre-wrap break-words">{msg.text}</p>
 
-                        {/* Timestamp and Status */}
-                        <div className="flex items-center justify-end space-x-1">
-                            {msg.time && <p className="text-[8px] text-gray-200">{msg.time}</p>}
-                            {msg.sender === auth.currentUser.uid && (
-                                <div className="text-[8px] text-gray-200">
-                                    {msg.status === "sending" && (
-                                        <span className="animate-spin">⏳</span> // Loading spinner
-                                    )}
-                                    {msg.status === "sent" && (
-                                        <span>✔️</span> // Checkmark
-                                    )}
-                                    {msg.status === "failed" && (
-                                        <span className="text-red-500">❌</span> // Error icon
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Reactions Container */}
-                    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                        <div className="absolute left-0 bottom-[-18px] flex space-x-[-4px] text-white text-xs">
-                            {/* Display all emojis without individual counts */}
-                            {Object.keys(msg.reactions).map((emoji) => (
-                                <span key={emoji}>{emoji}</span>
-                            ))}
-                            {/* Display the total reactions count */}
-                            <span className=" pl-4 text-gray-400">
-                                {Object.values(msg.reactions).reduce((total, userIds) => total + userIds.length, 0)}
-                            </span>
-                        </div>
+        {/* Timestamp and Status */}
+        <div className="flex items-center justify-end space-x-1">
+            {msg.time && <p className="text-[8px] text-gray-200">{msg.time}</p>}
+            {msg.sender === auth.currentUser.uid && (
+                <div className="text-[8px] text-gray-200">
+                    {msg.status === "sending" && (
+                        <span className="animate-spin">⏳</span> // Loading spinner
                     )}
-
-                    {/* Reaction Button */}
-                    <button
-                        onClick={() => setReactionPopup(msg.id)}
-                        className="mt-1 text-gray-300 text-sm flex items-center"
-                    >
-                        {userReaction ? (
-                            <span className="text-xl">{userReaction}</span>
-                        ) : (
-                            <FaRegSmile className="text-gray-400 text-xl" />
-                        )}
-                    </button>
-
-                    {/* Reaction Picker */}
-                    {reactionPopup === msg.id && (
-                        <div className="absolute top-[-40px] right-0 bg-gray-800 text-white p-1 rounded-md flex space-x-1">
-                            {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
-                                <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
-                                    {emoji}
-                                </button>
-                            ))}
-                        </div>
+                    {msg.status === "sent" && (
+                        <span>✔️</span> // Checkmark
+                    )}
+                    {msg.status === "failed" && (
+                        <span className="text-red-500">❌</span> // Error icon
                     )}
                 </div>
+            )}
+        </div>
+    </div>
+
+    {/* Reactions Container */}
+    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+        <div className="absolute left-0 bottom-[-18px] flex space-x-[-4px] text-white text-xs">
+            {/* Display all emojis without individual counts */}
+            {Object.keys(msg.reactions).map((emoji) => (
+                <span key={emoji}>{emoji}</span>
+            ))}
+            {/* Display the total reactions count */}
+            <span className=" pl-4 text-gray-400">
+                {Object.values(msg.reactions).reduce((total, userIds) => total + userIds.length, 0)}
+            </span>
+        </div>
+    )}
+
+    {/* Reaction Button */}
+    <button
+        onClick={() => setReactionPopup(msg.id)}
+        className="mt-1 text-gray-300 text-sm flex items-center"
+    >
+        {userReaction ? (
+            <span className="text-xl">{userReaction}</span>
+        ) : (
+            <FaRegSmile className="text-gray-400 text-xl" />
+        )}
+    </button>
+
+    {/* Reaction Picker */}
+    {reactionPopup === msg.id && (
+        <div className="absolute top-[-40px] bg-gray-800 text-white p-1 rounded-md flex space-x-1">
+            {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
+                <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
+                    {emoji}
+                </button>
+            ))}
+        </div>
+    )}
+</div>
             </motion.div>
         );
     })}
