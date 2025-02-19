@@ -26,19 +26,11 @@ export default function Chat() {
                 ...doc.data(),
             }));
             fetchedMessages.sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
-    
-            // Preserve existing reactions in state
-            setMessages((prevMessages) =>
-                fetchedMessages.map((msg) => {
-                    const existingMsg = prevMessages.find(m => m.id === msg.id);
-                    return existingMsg ? { ...msg, reactions: existingMsg.reactions || msg.reactions } : msg;
-                })
-            );
+            setMessages(fetchedMessages);
         });
-    
+
         return () => unsubscribe();
     }, []);
-    
 
     const sendMessage = async () => {
         if (newMessage.trim() === "") return;
@@ -66,51 +58,45 @@ export default function Chat() {
     const addReaction = async (msgId, reaction) => {
         const messageRef = doc(firestore, "messages", msgId);
         const userId = auth.currentUser.uid;
-    
+
         setMessages((prevMessages) =>
             prevMessages.map((msg) => {
                 if (msg.id === msgId) {
-                    const updatedReactions = { ...(msg.reactions || {}) };
-    
-                    // Remove the user's previous reaction (if any)
-                    for (const key in updatedReactions) {
-                        updatedReactions[key] = updatedReactions[key].filter(id => id !== userId);
-                        if (updatedReactions[key].length === 0) {
-                            delete updatedReactions[key]; 
-                        }
+                    const updatedReactions = { ...msg.reactions };
+
+                    if (updatedReactions[userId] === reaction) {
+                        // If the user clicks the same reaction, remove it (unreact)
+                        delete updatedReactions[userId];
+                    } else {
+                        // Otherwise, add or change reaction
+                        updatedReactions[userId] = reaction;
                     }
-    
-                    // Add the new reaction (if it's not the same as the previous one)
-                    if (reaction) {
-                        if (!updatedReactions[reaction]) {
-                            updatedReactions[reaction] = [];
-                        }
-                        updatedReactions[reaction].push(userId);
-                    }
-    
+
                     return { ...msg, reactions: updatedReactions };
                 }
                 return msg;
             })
         );
-    
+
         setReactionPopup(null);
-    
+
         try {
-            // Update Firestore *with the updated reactions*
-            await updateDoc(messageRef, { reactions: messages.find(msg => msg.id === msgId)?.reactions || {} });
-    
-            // Manually update the state after Firestore update (to avoid snapshot resetting UI)
-            setMessages((prevMessages) =>
-                prevMessages.map((msg) =>
-                    msg.id === msgId ? { ...msg, reactions: messages.find(m => m.id === msgId)?.reactions || {} } : msg
-                )
-            );
+            const docSnapshot = await getDocs(collection(firestore, "messages"));
+            const docToUpdate = docSnapshot.docs.find((doc) => doc.id === msgId);
+
+            if (docToUpdate) {
+                if (docToUpdate.data().reactions?.[userId] === reaction) {
+                    await updateDoc(messageRef, { [`reactions.${userId}`]: "" });
+                } else {
+                    await updateDoc(messageRef, { [`reactions.${userId}`]: reaction });
+                }
+            }
         } catch (error) {
             console.error("Error updating reaction:", error);
         }
+
+        
     };
-    
 
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -136,7 +122,7 @@ export default function Chat() {
             </div>
 
             {/* CHAT MESSAGES */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5">
                 {messages.map((msg) => {
                     const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
 
@@ -165,45 +151,15 @@ export default function Chat() {
                             )}
                             <div className="relative">
                                 <p className="text-gray-300 text-xs">{msg.username}</p>
-                                <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} rounded-md overflow-hidden`}>
+                                <div className={`max-w-xs ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'} px-4 py-2 flex flex-col justify-between ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} rounded-md`}>
                                     {msg.replyTo && (
-                                        <div className=" mb-1 flex flex-col ">
-                                         <p className="text-xs text-gray-400 italic">
-                                         Replying to {msg.replyTo.username}:
-                                          </p>
-                                              <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
-                                            `{msg.replyTo.text}`
-                                              </p>
+                                        <div className="text-xs text-gray-400 italic mb-1">
+                                            Replying to {msg.replyTo.username}: "{msg.replyTo.text}"
                                         </div>
                                     )}
-                                    <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
+                                    <p className="text-[12px] md:text-[18px] leading-tight">{msg.text}</p>
                                     {msg.time && <p className="text-[8px] text-gray-200 self-end">{msg.time}</p>}
                                 </div>
-
-                                {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                                <div className="absolute left-0 bottom-[-18px] flex space-x-1 text-white text-xs">
-                                    {/* Calculate total reactions count */}
-                                    {Object.entries(msg.reactions).map(([emoji, userIds]) => (
-                                        <button
-                                            key={emoji}
-                                            className={`flex items-center space-x-1 p-1 rounded ${
-                                                userIds.includes(auth.currentUser.uid) ? "bg-blue-500" : "bg-gray-700"
-                                            }`}
-                                            onClick={() => addReaction(msg.id, emoji)}
-                                        >
-                                            <span>{emoji}</span> {/* Display emoji */}
-                                            <span>{userIds.length}</span> {/* Display count of users who reacted with this emoji */}
-                                        </button>
-                                    ))}
-                                        {/* Display total reactions count */}
-                                        <div className="flex items-center space-x-1 p-1 rounded bg-gray-700">
-                                            <span>Total:</span>
-                                            <span>
-                                                {Object.values(msg.reactions).reduce((total, userIds) => total + userIds.length, 0)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
 
                                 {/* Reaction Button */}
                                 <button
@@ -237,17 +193,17 @@ export default function Chat() {
             {/* MESSAGE INPUT */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0d1a2b] flex flex-col items-center w-full">
             {replyTo && (
-                <div className="w-full flex items-center bg-gray-800 text-white p-2 rounded-t-md mb-2">
+                <div className="w-full flex items-center bg-gray-800 text-white p-2 rounded-md mb-2">
                     {/* Replying to Message Preview */}
                     <div className="flex-1 p-3 bg-gray-900 rounded-t-md border-l-8 border-blue-500">
                         <p className="text-xs text-gray-400">Replying to {replyTo.username}</p>
-                        <p className="text-sm italic text-gray-300 truncate max-w-[15ch]">{replyTo.text}</p>
+                        <p className="text-sm italic text-gray-300 truncate">{replyTo.text}</p>
                     </div>
                     
                     {/* Cancel Button */}
                     <button 
                         onClick={() => setReplyTo(null)}
-                        className="ml-3 text-gray-400 hover:text-red-400 border border-gray-600 rounded-full p-1"
+                        className="ml-3 text-gray-400 hover:text-red-400"
                     >
                         ✖
                     </button>
