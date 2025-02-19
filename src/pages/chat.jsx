@@ -202,55 +202,6 @@ useEffect(() => {
                 <div className="relative">
                     <p className="text-gray-300 text-xs">{msg.username}</p>
 
-<<<<<<< HEAD
-                                {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                                <div className="absolute left-0 bottom-[-18px] flex space-x-1 text-white text-xs">
-                                    {/* Calculate total reactions count */}
-                                    {Object.entries(msg.reactions).map(([emoji, userIds]) => (
-                                        <button
-                                            key={emoji}
-                                            className={`flex items-center space-x-1 p-1 rounded ${
-                                                userIds.includes(auth.currentUser.uid) ? "bg-blue-500" : "bg-gray-700"
-                                            }`}
-                                            onClick={() => addReaction(msg.id, emoji)}
-                                        >
-                                            <span>{emoji}</span> {/* Display emoji */}
-                                            <span>{userIds.length}</span> {/* Display count of users who reacted with this emoji */}
-                                        </button>
-                                    ))}
-                                        {/* Display total reactions count */}
-                                        <div className="flex items-center space-x-1 p-1 rounded bg-gray-700">
-                                            <span>Total:</span>
-                                            <span>
-                                                {Object.values(msg.reactions).reduce((total, userIds) => total + userIds.length, 0)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Reaction Button */}
-                                <button
-                                    onClick={() => setReactionPopup(msg.id)}
-                                    className="absolute bottom-[-16px] right-0 text-gray-300 text-sm"
-                                >
-                                    {userReaction ? (
-                                        <span className="text-xl">{userReaction}</span> // Show selected reaction
-                                    ) : (
-                                        <FaRegSmile className="text-gray-400 text-xl" /> // Default gray smiley
-                                    )}
-                                </button>
-
-                                {/* Reaction Picker */}
-                                {reactionPopup === msg.id && (
-                                    <div className="absolute top-[-40px] right-0 bg-gray-800 text-white p-1 rounded-md flex space-x-1">
-                                        {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
-                                            <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
-                                                {emoji}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-=======
                     <div className={`
                         min-w-[100px] 
                         max-w-[75%] 
@@ -266,7 +217,6 @@ useEffect(() => {
                                 <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
                                     `{msg.replyTo.text}`
                                 </p>
->>>>>>> b0df4668a8d91baa5e97b68c32f93449c3c15fe9
                             </div>
                         )}
 
