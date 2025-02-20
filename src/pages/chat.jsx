@@ -200,7 +200,7 @@ useEffect(() => {
                 )}
 
 {/* Message Bubble */}
-<div className="relative">
+<div className="relative  group">
    {msg.sender !== auth.currentUser.uid && (
                     <p className="text-gray-300 text-xs">{msg.username}</p>
                 )}
@@ -249,30 +249,40 @@ useEffect(() => {
     </div>
 
     {/* Reactions Container */}
-    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-        <div className="absolute left-0 bottom-[-18px] flex space-x-[-4px] text-white text-xs">
-            {/* Display all emojis without individual counts */}
-            {Object.keys(msg.reactions).map((emoji) => (
-                <span className="" key={emoji}>{emoji}</span>
-            ))}
-            {/* Display the total reactions count */}
-            <span className=" pl-4 text-gray-400">
-                {Object.values(msg.reactions).reduce((total, userIds) => total + userIds.length, 0)}
-            </span>
-        </div>
-    )}
+
+{msg.reactions && Object.keys(msg.reactions).length > 0 && (
+    <div
+        className={`absolute ${
+            msg.sender === auth.currentUser.uid
+                ? "right-0" 
+                : "left-0"  
+        } bottom-[-18px] flex space-x-[-4px] text-white text-xs`}
+    >
+        {/* Display all emojis without individual counts */}
+        {Object.keys(msg.reactions).map((emoji) => (
+            <span key={emoji}>{emoji}</span>
+        ))}
+        {/* Display the total reactions count */}
+        <span className="pl-4 text-gray-400">
+            {Object.values(msg.reactions).reduce((total, userIds) => total + userIds.length, 0)}
+        </span>
+    </div>
+)}
 
     {/* Reaction Button */}
-    <button
-        onClick={() => setReactionPopup(msg.id)}
-        className="mt-1 text-gray-300 text-sm flex items-center relative"
-    >
-        {userReaction ? (
-            <span className="text-xl">{userReaction}</span>
-        ) : (
-            <FaRegSmile className="text-gray-400 text-xl" />
-        )}
-    </button>
+   
+<button
+    onClick={() => setReactionPopup(msg.id)}
+    className={`mt-1 text-gray-300 text-sm flex items-center relative group-hover:block hidden ${
+        msg.sender === auth.currentUser .uid ? "ml-auto" : "mr-auto"
+    }`}
+>
+    {userReaction ? (
+        <span className="text-xl">{userReaction}</span>
+    ) : (
+        <FaRegSmile className="text-gray-400 text-xl" />
+    )}
+</button>
 
     {/* Reaction Picker */}
     {reactionPopup === msg.id && (
