@@ -271,18 +271,16 @@ useEffect(() => {
 
     {/* Reaction Button */}
    
-<button
-    onClick={() => setReactionPopup(msg.id)}
-    className={`mt-1 text-gray-300 text-sm flex items-center relative group-hover:block hidden ${
-        msg.sender === auth.currentUser .uid ? "ml-auto" : "mr-auto"
-    }`}
+<button 
+  onClick={() => setReactionPopup(msg.id)} 
+  className={`mt-1 text-gray-300 text-sm flex items-center relative focus:block hidden ${ msg.sender === auth.currentUser.uid ? "ml-auto" : "mr-auto" }`}
 >
-    {userReaction ? (
-        <span className="text-xl">{userReaction}</span>
-    ) : (
-        <FaRegSmile className="text-gray-400 text-xl" />
-    )}
-</button>
+  {userReaction ? (
+    <span className="text-xl">{userReaction}</span>
+  ) : (
+    <FaRegSmile className="text-gray-400 text-xl" />
+  )}
+</button>>
 
     {/* Reaction Picker */}
     {reactionPopup === msg.id && (
