@@ -5,7 +5,8 @@ import img from "../assets/anonymous.png";
 import img1 from "../assets/security.png";
 import { collection, getDocs, addDoc, updateDoc, doc, onSnapshot, Timestamp } from "firebase/firestore";
 import { firestore, auth } from "../../firebase";
-
+import { IoMdTime } from "react-icons/io";
+import { TiTickOutline } from "react-icons/ti";
 export default function Chat() {
     const RandomUsername = (baseName) => `${baseName}${Math.floor(Math.random() * 1000)}`;
     
@@ -198,85 +199,102 @@ useEffect(() => {
                     <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
                 )}
 
-                {/* Message Bubble */}
-                <div className="relative">
+{/* Message Bubble */}
+<div className="relative  group">
+   {msg.sender !== auth.currentUser.uid && (
                     <p className="text-gray-300 text-xs">{msg.username}</p>
+                )}
+    <div className={`
+        min-w-[100px] 
+        max-w-[75%] 
+        ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}
+        px-4 py-2 flex flex-col justify-between 
+        ${msg.sender === auth.currentUser.uid ? "ml-auto mr-2 bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} 
+        rounded-md overflow-hidden
+    `}>
+        {/* Reply Info */}
+        {msg.replyTo && (
+            <div className="mb-1 flex flex-col">
+                <p className="text-xs text-gray-400 italic">{msg.replyTo.username}:</p>
+                <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
+                    `{msg.replyTo.text}`
+                </p>
+            </div>
+        )}
 
-                    <div className={`
-                        min-w-[100px] 
-                        max-w-[75%] 
-                        ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}
-                        px-4 py-2 flex flex-col justify-between 
-                        ${msg.sender === auth.currentUser.uid ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} 
-                        rounded-md overflow-hidden
-                    `}>
-                        {/* Reply Info */}
-                        {msg.replyTo && (
-                            <div className="mb-1 flex flex-col">
-                                <p className="text-xs text-gray-400 italic">Replying to {msg.replyTo.username}:</p>
-                                <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
-                                    `{msg.replyTo.text}`
-                                </p>
-                            </div>
-                        )}
+        {/* Message Text */}
+        <p className="text-[12px] md:text-[18px] leading-tight whitespace-pre-wrap break-words">{msg.text}</p>
 
-                        {/* Message Text */}
-                        <p className="text-[12px] md:text-[18px] leading-tight break-words">{msg.text}</p>
+        {/* Timestamp and Status */}
+    {/* Timestamp and Status */}
+<div className="flex items-center justify-end text-end relative left-[10px]">
+    {/* Time */}
+    {msg.time && <p className="text-[8px] text-gray-200">{msg.time}</p>}
+    
+    {/* Status Icons */}
+    {msg.sender === auth.currentUser .uid && (
+        <div className="flex items-center  just text-[8px] text-gray-200">
+            {msg.status === "sending" && (
+                <span className="animate-spin"><IoMdTime /></span> // Loading spinner
+            )}
+            {msg.status === "sent" && (
+                <span><TiTickOutline size='13' className="text-green-400" /></span> // Checkmark
+            )}
+            {msg.status === "failed" && (
+                <span className="text-red-500">❌</span> // Error icon
+            )}
+        </div>
+    )}
+</div>
+    </div>
 
-                        {/* Timestamp and Status */}
-                        <div className="flex items-center justify-end space-x-1">
-                            {msg.time && <p className="text-[8px] text-gray-200">{msg.time}</p>}
-                            {msg.sender === auth.currentUser.uid && (
-                                <div className="text-[8px] text-gray-200">
-                                    {msg.status === "sending" && (
-                                        <span className="animate-spin">⏳</span> // Loading spinner
-                                    )}
-                                    {msg.status === "sent" && (
-                                        <span>✔️</span> // Checkmark
-                                    )}
-                                    {msg.status === "failed" && (
-                                        <span className="text-red-500">❌</span> // Error icon
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </div>
+    {/* Reactions Container */}
 
-                    {/* Reactions Container */}
-                    {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                        <div className="mt-1 flex flex-wrap items-center gap-1 bg-gray-800 text-white px-2 py-1 rounded-md w-fit">
-                            {Object.entries(msg.reactions).map(([emoji, userIds]) => (
-                                <span key={emoji} className="flex items-center space-x-1 text-xs">
-                                    <span>{emoji}</span>
-                                    <span>{userIds.length}</span>
-                                </span>
-                            ))}
-                        </div>
-                    )}
+{msg.reactions && Object.keys(msg.reactions).length > 0 && (
+    <div
+        className={`absolute ${
+            msg.sender === auth.currentUser.uid
+                ? "right-0" 
+                : "left-0"  
+        } bottom-[-18px] flex space-x-[-4px] text-white text-xs`}
+    >
+        {/* Display all emojis without individual counts */}
+        {Object.keys(msg.reactions).map((emoji) => (
+            <span key={emoji}>{emoji}</span>
+        ))}
+        {/* Display the total reactions count */}
+        <span className="pl-4 text-gray-400">
+            {Object.values(msg.reactions).reduce((total, userIds) => total + userIds.length, 0)}
+        </span>
+    </div>
+)}
 
-                    {/* Reaction Button */}
-                    <button
-                        onClick={() => setReactionPopup(msg.id)}
-                        className="mt-1 text-gray-300 text-sm flex items-center"
-                    >
-                        {userReaction ? (
-                            <span className="text-xl">{userReaction}</span>
-                        ) : (
-                            <FaRegSmile className="text-gray-400 text-xl" />
-                        )}
-                    </button>
+    {/* Reaction Button */}
+   
+<button
+    onClick={() => setReactionPopup(msg.id)}
+    className={`mt-1 text-gray-300 text-sm flex items-center relative group-hover:block hidden ${
+        msg.sender === auth.currentUser .uid ? "ml-auto" : "mr-auto"
+    }`}
+>
+    {userReaction ? (
+        <span className="text-xl">{userReaction}</span>
+    ) : (
+        <FaRegSmile className="text-gray-400 text-xl" />
+    )}
+</button>
 
-                    {/* Reaction Picker */}
-                    {reactionPopup === msg.id && (
-                        <div className="absolute top-[-40px] right-0 bg-gray-800 text-white p-1 rounded-md flex space-x-1">
-                            {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
-                                <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
-                                    {emoji}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
+    {/* Reaction Picker */}
+    {reactionPopup === msg.id && (
+        <div className="absolute top-[-40px] bg-gray-800 text-white p-1 rounded-md flex space-x-1">
+            {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
+                <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
+                    {emoji}
+                </button>
+            ))}
+        </div>
+    )}
+</div>
             </motion.div>
         );
     })}
@@ -305,14 +323,15 @@ useEffect(() => {
 
                 <div className="flex items-center w-full">
                     <FaPlus className="text-white mx-2" />
-                    <div className="w-full min-h-[48px] max-h-[70px] flex items-center border border-gray-500 rounded-3xl bg-[#0d1a2b] overflow-hidden">
+                    <div className="w-full min-h-[45px] max-h-[70px] flex items-center border border-gray-500 rounded-3xl bg-[#0d1a2b] overflow-hidden">
                         <textarea
                             ref={textareaRef}
-                            className="w-full px-4 py-3 bg-transparent text-white outline-none placeholder-gray-400 resize-none overflow-y-auto leading-normal"
+                            className="w-full px-4 py-3 bg-transparent text-white outline-none placeholder-gray-400 resize-none overflow-y-auto leading-normal whitespace-pre-wrap"
                             placeholder="Type a message..."
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                             rows={1}
+                            style={{ maxHeight: "70px" }} // Ensure the textarea doesn't exceed the max height
                         />
                     </div>
 
