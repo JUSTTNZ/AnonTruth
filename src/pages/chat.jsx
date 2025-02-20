@@ -5,7 +5,8 @@ import img from "../assets/anonymous.png";
 import img1 from "../assets/security.png";
 import { collection, getDocs, addDoc, updateDoc, doc, onSnapshot, Timestamp } from "firebase/firestore";
 import { firestore, auth } from "../../firebase";
-
+import { IoMdTime } from "react-icons/io";
+import { TiTickOutline } from "react-icons/ti";
 export default function Chat() {
     const RandomUsername = (baseName) => `${baseName}${Math.floor(Math.random() * 1000)}`;
     
@@ -200,8 +201,9 @@ useEffect(() => {
 
 {/* Message Bubble */}
 <div className="relative">
-    <p className="text-gray-300 text-xs">{msg.username}</p>
-
+   {msg.sender !== auth.currentUser.uid && (
+                    <p className="text-gray-300 text-xs">{msg.username}</p>
+                )}
     <div className={`
         min-w-[100px] 
         max-w-[75%] 
@@ -213,7 +215,7 @@ useEffect(() => {
         {/* Reply Info */}
         {msg.replyTo && (
             <div className="mb-1 flex flex-col">
-                <p className="text-xs text-gray-400 italic">Replying to {msg.replyTo.username}:</p>
+                <p className="text-xs text-gray-400 italic">{msg.replyTo.username}:</p>
                 <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
                     `{msg.replyTo.text}`
                 </p>
@@ -224,22 +226,26 @@ useEffect(() => {
         <p className="text-[12px] md:text-[18px] leading-tight whitespace-pre-wrap break-words">{msg.text}</p>
 
         {/* Timestamp and Status */}
-        <div className="flex items-center justify-end space-x-1">
-            {msg.time && <p className="text-[8px] text-gray-200">{msg.time}</p>}
-            {msg.sender === auth.currentUser.uid && (
-                <div className="text-[8px] text-gray-200">
-                    {msg.status === "sending" && (
-                        <span className="animate-spin">⏳</span> // Loading spinner
-                    )}
-                    {msg.status === "sent" && (
-                        <span>✔️</span> // Checkmark
-                    )}
-                    {msg.status === "failed" && (
-                        <span className="text-red-500">❌</span> // Error icon
-                    )}
-                </div>
+    {/* Timestamp and Status */}
+<div className="flex items-center justify-end text-end relative left-[10px]">
+    {/* Time */}
+    {msg.time && <p className="text-[8px] text-gray-200">{msg.time}</p>}
+    
+    {/* Status Icons */}
+    {msg.sender === auth.currentUser .uid && (
+        <div className="flex items-center  just text-[8px] text-gray-200">
+            {msg.status === "sending" && (
+                <span className="animate-spin"><IoMdTime /></span> // Loading spinner
+            )}
+            {msg.status === "sent" && (
+                <span><TiTickOutline size='13' className="text-green-400" /></span> // Checkmark
+            )}
+            {msg.status === "failed" && (
+                <span className="text-red-500">❌</span> // Error icon
             )}
         </div>
+    )}
+</div>
     </div>
 
     {/* Reactions Container */}
@@ -247,7 +253,7 @@ useEffect(() => {
         <div className="absolute left-0 bottom-[-18px] flex space-x-[-4px] text-white text-xs">
             {/* Display all emojis without individual counts */}
             {Object.keys(msg.reactions).map((emoji) => (
-                <span key={emoji}>{emoji}</span>
+                <span className="" key={emoji}>{emoji}</span>
             ))}
             {/* Display the total reactions count */}
             <span className=" pl-4 text-gray-400">
@@ -259,7 +265,7 @@ useEffect(() => {
     {/* Reaction Button */}
     <button
         onClick={() => setReactionPopup(msg.id)}
-        className="mt-1 text-gray-300 text-sm flex items-center"
+        className="mt-1 text-gray-300 text-sm flex items-center relative"
     >
         {userReaction ? (
             <span className="text-xl">{userReaction}</span>
