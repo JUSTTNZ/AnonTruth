@@ -18,6 +18,28 @@ export default function Chat() {
     const [username, setUsername] = useState(RandomUsername("anonymous"));
     const messagesEndRef = useRef(null);
     const textareaRef = useRef(null);
+    const [isAllowed, setIsAllowed] = useState(false);
+// after testing we should uncomment this function
+
+    // useEffect(() => {
+    //     const checkTime = () => {
+    //       const now = new Date();
+    //       const day = now.getDay();
+    //       const hour = now.getHours();
+    
+    //       if (day === 5 && hour >= 19 && hour < 22) {
+    //         setIsAllowed(true);
+    //       } else {
+    //         setIsAllowed(false);
+    //       }
+    //     };
+    
+    //     checkTime();
+    //     const interval = setInterval(checkTime, 60000);
+    //     return () => clearInterval(interval);
+    //   }, []);
+
+
 
 useEffect(() => {
     const messagesRef = collection(firestore, "messages");
@@ -167,139 +189,167 @@ useEffect(() => {
                     <p className="text-sm text-gray-300">Anonymous</p>
                 </div>
             </div>
+            {/* // after testing we should uncomment this modal */}
+            {/* <>
+  {!isAllowed && (
+    <div className="fixed pointer-events-none left-0 right-0 top-0 bottom-0 overflow-y-auto flex justify-center items-center bg-opacity-50 z-20">
+      <div className="bg-[#1a2b3c] text-white p-6 rounded-lg border border-gray-500 shadow-lg w-80 text-center">
+        <h3 className="text-lg font-bold mb-2">Message Restriction</h3>
+        <p className="text-sm text-gray-300">
+          You can only send messages on <span className="font-bold text-red-400">Friday</span> between
+          <span className="font-bold text-red-400"> 7 PM - 10 PM</span>.
+        </p>
+        <button
+          className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold"
+          onClick={() => setIsAllowed(true)}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  )}
+</> */}
 
-            {/* CHAT MESSAGES */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
-    {messages.map((msg) => {
-        const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
+{/* CHAT MESSAGES */}
+<div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
+  {messages.map((msg) => {
+    const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
 
-        return (
-            <motion.div
-                key={msg.id}
-                className={`flex items-start ${
-                    msg.sender === auth.currentUser.uid ? "justify-end" : "justify-start"
-                }`}
-                drag="x"
-                dragConstraints={{ left: -5, right: 0 }}
-                dragElastic={0.2}
-                dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }}
-                initial={{ x: 0 }}
-                animate={{ x: position }}
-                onDragEnd={(event, info) => {
-                    if (info.offset.x > 30) {
-                        setReplyTo(msg);
-                    }
-                    setPosition(0);
-                }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 150, damping: 10 }}
-            >
-                {/* Avatar for Sender */}
-                {msg.sender !== auth.currentUser.uid && (
-                    <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
-                )}
-
-{/* Message Bubble */}
-<div className="relative  group">
-   {msg.sender !== auth.currentUser.uid && (
-                    <p className="text-gray-300 text-xs">{msg.username}</p>
-                )}
-    <div className={`
-        min-w-[100px] 
-        max-w-[75%] 
-        ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}
-        px-4 py-2 flex flex-col justify-between 
-        ${msg.sender === auth.currentUser.uid ? "ml-auto mr-2 bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} 
-        rounded-md overflow-hidden
-    `}>
-        {/* Reply Info */}
-        {msg.replyTo && (
-            <div className="mb-1 flex flex-col">
-                <p className="text-xs text-gray-400 italic">{msg.replyTo.username}:</p>
-                <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
-                    `{msg.replyTo.text}`
-                </p>
-            </div>
+    return (
+      <motion.div
+        key={msg.id}
+        className={`flex items-start ${
+          msg.sender === auth.currentUser.uid ? "justify-end" : "justify-start"
+        }`}
+        drag="x"
+        dragConstraints={{ left: -5, right: 0 }}
+        dragElastic={0.2}
+        dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }}
+        initial={{ x: 0 }}
+        animate={{ x: position }}
+        onDragEnd={(event, info) => {
+          if (info.offset.x > 30) {
+            setReplyTo(msg);
+          }
+          setPosition(0);
+        }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 150, damping: 10 }}
+      >
+        {/* Avatar for Sender */}
+        {msg.sender !== auth.currentUser.uid && (
+          <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
         )}
 
-        {/* Message Text */}
-        <p className="text-[12px] md:text-[18px] leading-tight whitespace-pre-wrap break-words">{msg.text}</p>
-
-        {/* Timestamp and Status */}
-    {/* Timestamp and Status */}
-<div className="flex items-center justify-end text-end relative left-[10px]">
-    {/* Time */}
-    {msg.time && <p className="text-[8px] text-gray-200">{msg.time}</p>}
-    
-    {/* Status Icons */}
-    {msg.sender === auth.currentUser .uid && (
-        <div className="flex items-center  just text-[8px] text-gray-200">
-            {msg.status === "sending" && (
-                <span className="animate-spin"><IoMdTime /></span> // Loading spinner
+        {/* Message Bubble */}
+        <div className="relative group">
+          {msg.sender !== auth.currentUser.uid && (
+            <p className="text-gray-300 text-xs">{msg.username}</p>
+          )}
+          <div
+            className={`
+              min-w-[100px] 
+              max-w-[75%] 
+              ${msg.text.length > 100 ? 'rounded-md' : 'rounded-full'}
+              px-4 py-2 flex flex-col justify-between 
+              ${msg.sender === auth.currentUser.uid ? "ml-auto mr-2 bg-blue-500 text-white" : "bg-gray-700 text-gray-200"} 
+              rounded-md overflow-hidden
+            `}
+          >
+            {/* Reply Info */}
+            {msg.replyTo && (
+              <div className="mb-1 flex flex-col">
+                <p className="text-xs text-gray-400 italic">{msg.replyTo.username}:</p>
+                <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
+                  `{msg.replyTo.text}`
+                </p>
+              </div>
             )}
-            {msg.status === "sent" && (
-                <span><TiTickOutline size='13' className="text-green-400" /></span> // Checkmark
+
+            {/* Message Text */}
+            <p className="text-[12px] md:text-[18px] leading-tight whitespace-pre-wrap break-words">
+              {msg.text}
+            </p>
+
+            {/* Timestamp and Status */}
+            <div className="flex items-center justify-end text-end relative left-[10px]">
+              {/* Time */}
+              {msg.time && <p className="text-[8px] text-gray-200">{msg.time}</p>}
+
+              {/* Status Icons */}
+              {msg.sender === auth.currentUser.uid && (
+                <div className="flex items-center just text-[8px] text-gray-200">
+                  {msg.status === "sending" && (
+                    <span className="animate-spin">
+                      <IoMdTime />
+                    </span>
+                  )}
+                  {msg.status === "sent" && (
+                    <span>
+                      <TiTickOutline size="13" className="text-green-400" />
+                    </span>
+                  )}
+                  {msg.status === "failed" && (
+                    <span className="text-red-500">❌</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Reactions Container */}
+          {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+            <div
+              className={`absolute ${
+                msg.sender === auth.currentUser.uid ? "right-0" : "left-0"
+              } bottom-[-18px] flex space-x-[-4px] text-white text-xs`}
+            >
+              {/* Display all emojis without individual counts */}
+              {Object.keys(msg.reactions).map((emoji) => (
+                <span key={emoji}>{emoji}</span>
+              ))}
+              {/* Display the total reactions count */}
+              <span className="pl-4 text-gray-400">
+                {Object.values(msg.reactions).reduce(
+                  (total, userIds) => total + userIds.length,
+                  0
+                )}
+              </span>
+            </div>
+          )}
+
+          {/* Reaction Button */}
+          <button
+            onClick={() => setReactionPopup(msg.id)}
+            className={`mt-1 text-gray-300 text-sm flex items-center relative ${
+              msg.sender === auth.currentUser.uid ? "ml-auto" : "mr-auto"
+            }`}
+          >
+            {userReaction ? (
+              <span className="text-xl">{userReaction}</span>
+            ) : (
+              <FaRegSmile className="text-gray-400 text-xl" />
             )}
-            {msg.status === "failed" && (
-                <span className="text-red-500">❌</span> // Error icon
-            )}
-        </div>
-    )}
-</div>
-    </div>
+          </button>
 
-    {/* Reactions Container */}
-
-{msg.reactions && Object.keys(msg.reactions).length > 0 && (
-    <div
-        className={`absolute ${
-            msg.sender === auth.currentUser.uid
-                ? "right-0" 
-                : "left-0"  
-        } bottom-[-18px] flex space-x-[-4px] text-white text-xs`}
-    >
-        {/* Display all emojis without individual counts */}
-        {Object.keys(msg.reactions).map((emoji) => (
-            <span key={emoji}>{emoji}</span>
-        ))}
-        {/* Display the total reactions count */}
-        <span className="pl-4 text-gray-400">
-            {Object.values(msg.reactions).reduce((total, userIds) => total + userIds.length, 0)}
-        </span>
-    </div>
-)}
-
-    {/* Reaction Button */}
-   
-<button
-    onClick={() => setReactionPopup(msg.id)}
-    className={`mt-1 text-gray-300 text-sm flex items-center relative ${
-        msg.sender === auth.currentUser .uid ? "ml-auto" : "mr-auto"
-    }`}
->
-    {userReaction ? (
-        <span className="text-xl">{userReaction}</span>
-    ) : (
-        <FaRegSmile className="text-gray-400 text-xl" />
-    )}
-</button>
-
-    {/* Reaction Picker */}
-    {reactionPopup === msg.id && (
-        <div className="absolute top-[-40px] bg-gray-800 text-white p-1 rounded-md flex space-x-1">
-            {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
+          {/* Reaction Picker */}
+          {reactionPopup === msg.id && (
+            <div className="absolute top-[-40px] bg-gray-800 text-white p-1 rounded-md flex space-x-1">
+              {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
                 <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
-                    {emoji}
+                  {emoji}
                 </button>
-            ))}
+              ))}
+            </div>
+          )}
         </div>
-    )}
+      </motion.div>
+    );
+  })}
+
+  <div ref={messagesEndRef} />
 </div>
-            </motion.div>
-        );
-    })}
-    <div ref={messagesEndRef} />
-</div>
+
 
             {/* MESSAGE INPUT */}
             <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0d1a2b] flex flex-col items-center w-full">
@@ -331,11 +381,13 @@ useEffect(() => {
                             value={newMessage}
                             onChange={(e) => setNewMessage(e.target.value)}
                             rows={1}
-                            style={{ maxHeight: "70px" }} // Ensure the textarea doesn't exceed the max height
+                            style={{ maxHeight: "70px" }} 
+                            disabled={!isAllowed}
                         />
                     </div>
 
                     <motion.button
+                      disabled={!isAllowed}
                     onClick={sendMessage}
                     className="ml-2 text-white"
                     whileTap={{ scale: 0.8 }} // Shrinks slightly when clicked
