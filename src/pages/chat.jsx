@@ -182,7 +182,7 @@ useEffect(() => {
                 drag="x"
                 dragConstraints={{ left: -5, right: 0 }}
                 dragElastic={0.2}
-                dragTransition={{ bounceStiffness: 100, bounceDamping: 15 }}
+                dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }}
                 initial={{ x: 0 }}
                 animate={{ x: position }}
                 onDragEnd={(event, info) => {
@@ -191,7 +191,7 @@ useEffect(() => {
                     }
                     setPosition(0);
                 }}
-                
+                whileTap={{ scale: 0.98 }}
                 transition={{ type: "spring", stiffness: 150, damping: 10 }}
             >
                 {/* Avatar for Sender */}
@@ -271,16 +271,18 @@ useEffect(() => {
 
     {/* Reaction Button */}
    
-<button 
-  onClick={() => setReactionPopup(msg.id)} 
-  className={`mt-1 text-gray-300 text-sm flex items-center relative focus:block hidden ${ msg.sender === auth.currentUser.uid ? "ml-auto" : "mr-auto" }`}
+<button
+    onClick={() => setReactionPopup(msg.id)}
+    className={`mt-1 text-gray-300 text-sm flex items-center relative ${
+        msg.sender === auth.currentUser .uid ? "ml-auto" : "mr-auto"
+    }`}
 >
-  {userReaction ? (
-    <span className="text-xl">{userReaction}</span>
-  ) : (
-    <FaRegSmile className="text-gray-400 text-xl" />
-  )}
-</button>>
+    {userReaction ? (
+        <span className="text-xl">{userReaction}</span>
+    ) : (
+        <FaRegSmile className="text-gray-400 text-xl" />
+    )}
+</button>
 
     {/* Reaction Picker */}
     {reactionPopup === msg.id && (
