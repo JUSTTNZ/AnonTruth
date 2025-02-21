@@ -86,9 +86,9 @@ export default function Login({ setIsAdmin }) {
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
       <div className="w-full max-w-md  p-6 rounded-lg shadow-lg">
         
-        <h1 className="text-3xl font-bold text-center text-[#00CCFF]">Akanite Box</h1>
+        <h1 className="text-3xl font-bold text-center text-[#00CCFF] font-poppins">Akanite Box</h1>
 
-        <p className="text-gray-400 text-md text-center mt-2">
+        <p className="text-gray-400 text-md text-center mt-2 font-poppins">
           Only login via email, Google, is supported 
         </p>
   {error && (
@@ -114,7 +114,7 @@ export default function Login({ setIsAdmin }) {
 
        
         <div className="mt-4">
-          <label className="block text-md font-medium">Password</label>
+          <label className="block text-md font-medium font-poppins">Password</label>
           <div className="flex items-center border border-gray-600 rounded-md px-3 mt-1">
             <MdLock className="text-gray-400" />
             <input
