@@ -211,7 +211,7 @@ useEffect(() => {
 </> */}
 
 {/* CHAT MESSAGES */}
-<div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
+<div className="flex-1 overflow-y-auto p-4 space-y-8 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
   {messages.map((msg) => {
     const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
 

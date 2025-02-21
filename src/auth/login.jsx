@@ -130,8 +130,8 @@ try {
           <input required type="checkbox" className="w-4 h-4 text-[#00CCFF]" />
           <p className="text-sm text-gray-400">
             I confirm that I have read, consent and agree to Anon truth{" "}
-            <span className="text-[#00CCFF] cursor-pointer">Terms of Use</span> and{" "}
-            <span className="text-[#00CCFF] cursor-pointer">Privacy Policy</span>.
+            <a href="/terms-of-use" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer">Terms of Use</a> and{" "}
+            <a href="/privacy-policy" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer">Privacy Policy</a>.
           </p>
         </div>
 
