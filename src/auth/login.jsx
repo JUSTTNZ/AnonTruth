@@ -7,13 +7,14 @@ import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import GoogleIcon from "../assets/google logo.png";
 
-export default function Login() {
+export default function Login({ setIsAdmin }) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, SetEmail] = useState('')
   const [password, SetPassword] = useState('')
   const [error, SetError] = useState(null)
   const [btnloading, setbtnloading] = useState()
   const navigate = useNavigate();
+  
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -28,6 +29,7 @@ export default function Login() {
         // Check if user is admin
         const isAdmin = userData.isAdmin || false;
         localStorage.setItem("isAdmin", isAdmin); // Store admin status in local storage
+        setIsAdmin(isAdmin); // Update global admin state
   
         setbtnloading(true);
         setTimeout(() => {
@@ -47,7 +49,7 @@ export default function Login() {
       }, 2000);
     }
   };
-  
+
   const GoggleRegister = async () => {
       const provider = new GoogleAuthProvider();
       try {
