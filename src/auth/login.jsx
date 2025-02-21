@@ -7,42 +7,48 @@ import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import GoogleIcon from "../assets/google logo.png";
 
-export default function Login() {
+export default function Login({ setIsAdmin }) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, SetEmail] = useState('')
   const [password, SetPassword] = useState('')
   const [error, SetError] = useState(null)
   const [btnloading, setbtnloading] = useState()
   const navigate = useNavigate();
+  
   const handleLogin = async (e) => {
-e.preventDefault()
-try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    const userId = user.uid;
-
-    const UserDoc = await getDoc(doc(firestore, "users", userId));
-    if (UserDoc.exists()) {
+    e.preventDefault();
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const userId = user.uid;
+  
+      const userDoc = await getDoc(doc(firestore, "users", userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        
+        // Check if user is admin
+        const isAdmin = userData.isAdmin || false;
+        localStorage.setItem("isAdmin", isAdmin); // Store admin status in local storage
+        setIsAdmin(isAdmin); // Update global admin state
+  
+        setbtnloading(true);
+        setTimeout(() => {
+          setbtnloading(false);
+          navigate("/chat");
+        }, 9000);
+      } else {
+        SetError("You are not authorized as a User.");
+        setTimeout(() => SetError(""), 5000);
+      }
+    } catch (err) {
       setbtnloading(true);
       setTimeout(() => {
         setbtnloading(false);
-        navigate("/chat");
-      }, 9000);
-    } else {
-      SetError("You are not authorized as a User.");
-      setTimeout(() => SetError(""), 5000);
+        SetError("Invalid email or password.");
+        setTimeout(() => SetError(""), 5000);
+      }, 2000);
     }
-  } catch (err) {
-    setbtnloading(true);
-    setTimeout(() => {
-      setbtnloading(false);
-      
-      SetError(err, "Invalid email or password.");
-      setTimeout(() => SetError(""), 5000);
-    }, 2000);
-  }
-
-  }
+  };
 
   const GoggleRegister = async () => {
       const provider = new GoogleAuthProvider();
@@ -80,7 +86,7 @@ try {
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
       <div className="w-full max-w-md  p-6 rounded-lg shadow-lg">
         
-        <h1 className="text-3xl font-bold text-center text-[#00CCFF]">Anon Truth</h1>
+        <h1 className="text-3xl font-bold text-center text-[#00CCFF]">Akanite Box</h1>
 
         <p className="text-gray-400 text-sm text-center mt-2">
           Only login via email, Google, is supported 
@@ -130,8 +136,8 @@ try {
           <input required type="checkbox" className="w-4 h-4 text-[#00CCFF]" />
           <p className="text-sm text-gray-400">
             I confirm that I have read, consent and agree to Anon truth{" "}
-            <span className="text-[#00CCFF] cursor-pointer">Terms of Use</span> and{" "}
-            <span className="text-[#00CCFF] cursor-pointer">Privacy Policy</span>.
+            <a href="/terms-of-use" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer">Terms of Use</a> and{" "}
+            <a href="/privacy-policy" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer">Privacy Policy</a>.
           </p>
         </div>
 
@@ -170,7 +176,7 @@ try {
    
      
         <div className="mt-4 flex justify-between text-sm text-gray-400">
-          <a href="#" className="hover:underline">Forgot password?</a>
+          <a href="/forgot-password" className="hover:underline">Forgot password?</a>
           <a href="/register" className="hover:underline" >Sign up</a>
         </div>
  <div onClick={GoggleRegister} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">
