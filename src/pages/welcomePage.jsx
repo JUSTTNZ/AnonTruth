@@ -9,7 +9,7 @@ export const Welcome = () => {
     const [isTyping, setIsTyping] = useState(true); // Tracks if text is still typing
     const navigate = useNavigate();
 
-    const fullText = "Behind the veil of anonymity, every whisper becomes a voice, every thought finds a space, say it all, no names, no limits.";
+    const fullText = "Beehind the veil of anonymity, every whisper becomes a voice, every thought finds a space, say it all, no names, no limits.";
 
     useEffect(() => {
         setTimeout(() => {
