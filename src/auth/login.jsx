@@ -176,7 +176,7 @@ export default function Login({ setIsAdmin }) {
    
      
         <div className="mt-4 flex justify-between text-sm text-gray-400">
-          <a href="#" className="hover:underline">Forgot password?</a>
+          <a href="/forgot-password" className="hover:underline">Forgot password?</a>
           <a href="/register" className="hover:underline" >Sign up</a>
         </div>
  <div onClick={GoggleRegister} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">

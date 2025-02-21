@@ -6,6 +6,7 @@ import Register from "./auth/register";
 import Chat from "./pages/chat";
 import { TermsOfUse } from "./pages/termsOfUse";
 import { PrivacyPolicy } from "./pages/policyPrivacy";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -26,6 +27,7 @@ function App() {
           <Route path="/chat" element={<Chat isAdmin={isAdmin} isMessageAllowed={isMessageAllowed} setIsMessageAllowed={setIsMessageAllowed} />} />
           <Route path="/terms-of-use" element={<TermsOfUse />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
       </Router>
     </div>
