@@ -6,7 +6,7 @@ import Register from "./auth/register";
 import Chat from "./pages/chat";
 import { TermsOfUse } from "./pages/termsOfUse";
 import { PrivacyPolicy } from "./pages/policyPrivacy";
-import ForgotPassword from "./pages/ForgotPassword";
+import ForgotPassword from "./pages/forgotPassword";
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
