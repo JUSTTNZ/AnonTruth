@@ -96,7 +96,7 @@ try {
         
         <h1 className="text-3xl font-bold text-center text-[#00CCFF]">Akanite Box</h1>
 
-        <p className="text-gray-400 text-md text-center mt-2">
+        <p className="text-gray-400 text-sm text-center mt-2">
           One Akanite Box account is all you need to access all Akanite Box services.
         </p>
   {error && (
@@ -106,7 +106,7 @@ try {
   )}
       <form onSubmit={handleRegister}>
       <div className="mt-4">
-          <label className="block text-md font-medium"> Email</label>
+          <label className="block text-sm font-medium"> Email</label>
           <div className="flex items-center border border-gray-600 rounded-md px-3 mt-1">
             <MdEmail className="text-gray-400" />
             <input
@@ -122,7 +122,7 @@ try {
 
        
         <div className="mt-4">
-          <label className="block text-md font-medium">Password</label>
+          <label className="block text-sm font-medium">Password</label>
           <div className="flex items-center border border-gray-600 rounded-md px-3 mt-1">
             <MdLock className="text-gray-400" />
             <input
@@ -140,7 +140,7 @@ try {
         </div>
 
         <div className="mt-4">
-          <label className="block text-md font-medium">Confirm Password</label>
+          <label className="block text-sm font-medium">Confirm Password</label>
           <div className="flex items-center border border-gray-600 rounded-md px-3 mt-1">
             <MdLock className="text-gray-400" />
             <input
@@ -159,10 +159,10 @@ try {
      
         <div className="mt-4 flex items-center gap-2">
           <input required type="checkbox" className="w-4 h-4 text-[#00CCFF]" />
-          <p className="text-md text-gray-400">
+          <p className="text-sm text-gray-400">
             I confirm that I have read, consent and agree to Anon truth{" "}
-            <a href="/terms-of-use" className="text-[#00CCFF] cursor-pointer">Terms of Use</a> and{" "}
-            <a href="/privacy-policy" className="text-[#00CCFF] cursor-pointer">Privacy Policy</a>.
+            <a href="/terms-of-use" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer">Terms of Use</a> and{" "}
+            <a href="/privacy-policy" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer">Privacy Policy</a>.
           </p>
         </div>
 
@@ -202,7 +202,7 @@ try {
      
         <div className="mt-4 flex justify-end text-sm text-gray-400">
 
-          <a href="/login" className="hover:underline text-[#00CCFF] underline text-lg">Login</a>
+          <a href="/login" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer">Login</a>
         </div>
         <div onClick={GoggleRegister} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">
           <img src={GoogleIcon} alt="" className="w-5 h-5 rounded-full" />
