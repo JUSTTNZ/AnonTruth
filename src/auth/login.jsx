@@ -15,35 +15,39 @@ export default function Login() {
   const [btnloading, setbtnloading] = useState()
   const navigate = useNavigate();
   const handleLogin = async (e) => {
-e.preventDefault()
-try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    const userId = user.uid;
-
-    const UserDoc = await getDoc(doc(firestore, "users", userId));
-    if (UserDoc.exists()) {
+    e.preventDefault();
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const userId = user.uid;
+  
+      const userDoc = await getDoc(doc(firestore, "users", userId));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        
+        // Check if user is admin
+        const isAdmin = userData.isAdmin || false;
+        localStorage.setItem("isAdmin", isAdmin); // Store admin status in local storage
+  
+        setbtnloading(true);
+        setTimeout(() => {
+          setbtnloading(false);
+          navigate("/chat");
+        }, 9000);
+      } else {
+        SetError("You are not authorized as a User.");
+        setTimeout(() => SetError(""), 5000);
+      }
+    } catch (err) {
       setbtnloading(true);
       setTimeout(() => {
         setbtnloading(false);
-        navigate("/chat");
-      }, 9000);
-    } else {
-      SetError("You are not authorized as a User.");
-      setTimeout(() => SetError(""), 5000);
+        SetError("Invalid email or password.");
+        setTimeout(() => SetError(""), 5000);
+      }, 2000);
     }
-  } catch (err) {
-    setbtnloading(true);
-    setTimeout(() => {
-      setbtnloading(false);
-      
-      SetError(err, "Invalid email or password.");
-      setTimeout(() => SetError(""), 5000);
-    }, 2000);
-  }
-
-  }
-
+  };
+  
   const GoggleRegister = async () => {
       const provider = new GoogleAuthProvider();
       try {
