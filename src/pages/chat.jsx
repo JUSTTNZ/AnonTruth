@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { FaPaperPlane, FaPlus, FaRegSmile } from "react-icons/fa";
-import img from "../assets/anonymous.png";
 import img1 from "../assets/security.png";
 import { collection, getDocs, addDoc, updateDoc, doc, onSnapshot, Timestamp } from "firebase/firestore";
 import { firestore, auth } from "../../firebase";
 import { IoMdTime } from "react-icons/io";
 import { TiTickOutline } from "react-icons/ti";
+import ChatHeader  from '../components/chatHeader'
+
 export default function Chat() {
     const RandomUsername = (baseName) => `${baseName}${Math.floor(Math.random() * 1000)}`;
     
@@ -19,6 +20,9 @@ export default function Chat() {
     const messagesEndRef = useRef(null);
     const textareaRef = useRef(null);
     const [isAllowed, setIsAllowed] = useState(false);
+    const [isMessagingEnabled, setIsMessagingEnabled] = useState(true);
+
+
 // after testing we should uncomment this function
 
     // useEffect(() => {
@@ -180,15 +184,15 @@ useEffect(() => {
         }
     }, [newMessage]);
 
+    const toggleMessaging = () => {
+        setIsMessagingEnabled(!isMessagingEnabled);
+      };
+
     return (
         <div className="min-h-screen bg-[#0d1a2b] flex flex-col justify-between">
             {/* HEADER */}
-            <div className="fixed top-0 left-0 right-0 w-full flex items-center p-4 bg-[#1a2b3c] text-white z-10">
-                <img src={img} alt="Avatar" className="w-10 h-10 rounded-full" />
-                <div className="ml-3 flex-1">
-                    <p className="text-sm text-gray-300">Anonymous</p>
-                </div>
-            </div>
+            <ChatHeader isAdmin={true} toggleMessaging={toggleMessaging} />
+
             {/* // after testing we should uncomment this modal */}
             {/* <>
   {!isAllowed && (
@@ -211,7 +215,7 @@ useEffect(() => {
 </> */}
 
 {/* CHAT MESSAGES */}
-<div className="flex-1 overflow-y-auto p-4 space-y-4 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
+<div className="flex-1 overflow-y-auto p-4 space-y-8 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
   {messages.map((msg) => {
     const userReaction = msg.reactions?.[auth.currentUser.uid] || "";
 
@@ -382,12 +386,12 @@ useEffect(() => {
                             onChange={(e) => setNewMessage(e.target.value)}
                             rows={1}
                             style={{ maxHeight: "70px" }} 
-                            disabled={!isAllowed}
+                            // disabled={!isAllowed}
                         />
                     </div>
 
                     <motion.button
-                      disabled={!isAllowed}
+                      // disabled={!isAllowed}
                     onClick={sendMessage}
                     className="ml-2 text-white"
                     whileTap={{ scale: 0.8 }} // Shrinks slightly when clicked
