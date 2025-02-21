@@ -88,7 +88,7 @@ export default function Login({ setIsAdmin }) {
         
         <h1 className="text-3xl font-bold text-center text-[#00CCFF] font-poppins">Akanite Box</h1>
 
-        <p className="text-gray-400 text-md text-center mt-2 font-poppins">
+        <p className="text-gray-400 text-sm text-center mt-2 font-poppins">
           Only login via email, Google, is supported 
         </p>
   {error && (
@@ -98,13 +98,13 @@ export default function Login({ setIsAdmin }) {
   )}
       <form onSubmit={handleLogin}>
       <div className="mt-4">
-          <label className="block text-md font-medium"> Email</label>
+          <label className="block text-sm font-medium"> Email</label>
           <div className="flex items-center border border-gray-600 rounded-md px-3 mt-1">
             <MdEmail className="text-gray-400" />
             <input
               type="text"
               placeholder="Email address"
-              className="w-full bg-transparent p-2 outline-none text-md text-white"
+              className="w-full bg-transparent p-2 outline-none  text-white"
               onChange={(e) => SetEmail(e.target.value)}
               value={email}
               required
@@ -114,7 +114,7 @@ export default function Login({ setIsAdmin }) {
 
        
         <div className="mt-4">
-          <label className="block text-md font-medium font-poppins">Password</label>
+          <label className="block text-sm font-medium font-poppins">Password</label>
           <div className="flex items-center border border-gray-600 rounded-md px-3 mt-1">
             <MdLock className="text-gray-400" />
             <input
@@ -134,7 +134,7 @@ export default function Login({ setIsAdmin }) {
      
         <div className="mt-4 flex items-center gap-2">
           <input required type="checkbox" className="w-4 h-4 text-[#00CCFF]" />
-          <p className="text-md text-gray-400">
+          <p className="text-sm text-gray-400">
             I confirm that I have read, consent and agree to Anon truth{" "}
             <a href="/terms-of-use" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer">Terms of Use</a> and{" "}
             <a href="/privacy-policy" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer">Privacy Policy</a>.
@@ -175,9 +175,9 @@ export default function Login({ setIsAdmin }) {
       </form>
    
      
-        <div className="mt-4 flex justify-between text-md text-gray-400">
-          <a href="/forgot-password" className="hover:underline text-[#00CCFF] underline">Forgot password?</a>
-          <a href="/register" className="hover:underline text-[#00CCFF] underline" >Sign up</a>
+        <div className="mt-4 flex justify-between text-sm text-gray-400">
+          <a href="/forgot-password" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer">Forgot password?</a>
+          <a href="/register" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer" >Sign up</a>
         </div>
  <div onClick={GoggleRegister} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">
           <img src={GoogleIcon} alt="" className="w-5 h-5 rounded-full" />
