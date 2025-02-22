@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { collection, onSnapshot, Timestamp, doc, getDoc, updateDoc, addDoc } from "firebase/firestore";
 import { firestore, auth } from "../../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import ChatHeader from "../components/ChatHeader";
+import ChatHeader from "../components/chatHeader";
 import MessageList from "../components/MessageList";
 import MessageInput from "../components/MessageInput";
 
