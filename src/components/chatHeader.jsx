@@ -14,6 +14,12 @@ const ChatHeader = ({ isAdmin, toggleMessaging, isMessagingEnabled }) => {
    
       <div className="ml-3 flex-1">
         <p className="text-sm text-gray-300">Anonymous</p>
+        {!isMessagingEnabled &&(
+                  <p className="text-sm text-gray-300">Only Admin Can Send Message</p>
+        )
+        
+        }
+
       </div>
 
       {isAdmin && (
