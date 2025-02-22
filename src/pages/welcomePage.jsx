@@ -38,20 +38,20 @@ export const Welcome = () => {
 
     return (
         <>
-            <div className={`bg-gray-900 h-screen flex flex-col justify-center items-center transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}>
+            <div className={`bg-gray-900 h-screen  flex flex-col justify-center items-center transition-opacity duration-1000 ${isVisible ? "opacity-100" : "opacity-0"}`}>
                 
                 {/* Logo with scale & rotate effect */}
-                <h1 className={`text-[#00CCFF] font-bold text-4xl md:text-6xl pb-4 md:pb-8 transition-transform duration-1000 ease-in-out transform 
+                <h1 className={`text-[#00CCFF] font-bold text-4xl md:text-4xl pb-4 md:pb-8 transition-transform duration-1000 ease-in-out transform 
                 ${isVisible ? "scale-100 rotate-0" : "scale-75 rotate-[-10deg]"}`}>
                     Akanite Box
                 </h1>
 
                 <div className='pb-4 mb-10 flex flex-col items-center'>
                     {/* Image with bounce-in effect */}
-                    <img className={`w-24 h-24 md:w-60 md:h-60 mb-6 transition-transform duration-1000 ease-out transform scale-50 opacity-0 ${isVisible ? "scale-100 opacity-100" : ""}`} src={AnonImage2} alt="AnonImage" />
+                    <img className={`w-24 h-24 md:w-40 md:h-40 mb-6 transition-transform duration-1000 ease-out transform scale-50 opacity-0 ${isVisible ? "scale-100 opacity-100" : ""}`} src={AnonImage2} alt="AnonImage" />
 
                     {/* Slide-in effect for Welcome text */}
-                    <h1 className={`text-[#00CCFF] font-bold text-center text-3xl md:text-6xl pb-14 transition-transform duration-1000 ease-in-out transform translate-y-10 opacity-0 
+                    <h1 className={`text-[#00CCFF] font-bold text-center text-3xl md:text-5xl pb-14 transition-transform duration-1000 ease-in-out transform translate-y-10 opacity-0 
                     ${isVisible ? "translate-y-0 opacity-100" : ""}`}>Welcome</h1>
 
                     {/* ChatGPT-style typing effect with moving blinking dot */}
