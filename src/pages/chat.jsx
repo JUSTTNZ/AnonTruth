@@ -73,7 +73,7 @@ export default function Chat() {
         const messagingDocRef = doc(firestore, "settings", "messaging");
         const newState = !isMessagingEnabled;
         await updateDoc(messagingDocRef, { isMessagingEnabled: newState });
-        alert(`Messaging ${newState ? "Enabled" : "Disabled"}`);
+        // alert(`Messaging ${newState ? "Enabled" : "Disabled"}`);
       } catch (error) {
         console.error("Error updating messaging state:", error);
         alert("Failed to update messaging state. Please try again.");
