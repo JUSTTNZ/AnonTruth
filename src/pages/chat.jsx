@@ -256,7 +256,7 @@ useEffect(() => {
       >
         {/* Avatar for Sender */}
         {msg.sender !== auth.currentUser.uid && (
-          <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
+          <img src={img1} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
         )}
 
         {/* Message Bubble */}
