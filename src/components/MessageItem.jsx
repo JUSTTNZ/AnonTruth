@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { FaRegSmile } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { TiTickOutline } from "react-icons/ti";
-
+import img from "../assets/security.png";
 const MessageItem = ({
   msg,
   auth,
@@ -35,7 +35,7 @@ const MessageItem = ({
     >
       {/* Avatar for Sender */}
       {msg.sender !== auth.currentUser.uid && (
-        <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
+        <img src={img} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
       )}
 
       {/* Message Bubble */}
