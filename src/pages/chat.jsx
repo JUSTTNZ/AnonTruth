@@ -21,7 +21,7 @@ export default function Chat({isAdmin, isMessagingDisabled, setIsMessagingDisabl
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   //const [isAllowed, setIsAllowed] = useState(false);
-  const [isMessagingEnabled, setIsMessagingEnabled] = useState(true);
+  // const [isMessagingEnabled, setIsMessagingEnabled] = useState(true);
   const AdminUserIDS = import.meta.env.VITE_ADMIN_UIDS?.split(",") || [];
 
 
@@ -194,7 +194,7 @@ useEffect(() => {
 
     const toggleMessaging = () => {
       if(CheckIfAdmin) {
-        setIsMessagingEnabled((prevState) => !prevState);
+        setIsMessagingDisabled((prevState) => !prevState);
       } else {
         alert("You are not an admin");
       };
