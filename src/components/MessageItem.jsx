@@ -39,7 +39,7 @@ const MessageItem = ({
       )}
 
       {/* Message Bubble */}
-      <div className="relative group">
+      <div className="relative group overflow-hidden">
         {msg.sender !== auth.currentUser.uid && (
           <p className="text-gray-300 text-xs">{msg.username}</p>
         )}
