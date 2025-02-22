@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useState,useEffect } from "react";
 import { Welcome } from "./pages/welcomePage";
 import Login from "./auth/login";
 import Register from "./auth/register";
@@ -9,13 +8,7 @@ import { PrivacyPolicy } from "./pages/policyPrivacy";
 import ForgotPassword from "./pages/forgotPassword";
 
 function App() {
-  // const [isAdmin, setIsAdmin] = useState(false);
-  const [isMessageAllowed, setIsMessageAllowed] = useState(true);
 
-  // useEffect(() => {
-  //   const storedAdminStatus = localStorage.getItem("isAdmin") === "true"; // Ensure it's a boolean
-  //   setIsAdmin(storedAdminStatus);
-  // }, []);
   
   return (
     <div>
@@ -24,7 +17,7 @@ function App() {
           <Route path="/" element={<Welcome />} />
           <Route path="/login" element={<Login  />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/chat" element={<Chat  isMessageAllowed={isMessageAllowed} setIsMessageAllowed={setIsMessageAllowed} />} />
+          <Route path="/chat" element={<Chat   />} />
           <Route path="/terms-of-use" element={<TermsOfUse />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

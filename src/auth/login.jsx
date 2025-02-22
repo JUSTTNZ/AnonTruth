@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {  FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { MdEmail, MdLock } from "react-icons/md";
 import { useState } from "react";
@@ -7,7 +8,7 @@ import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import GoogleIcon from "../assets/google logo.png";
 
-export default function Login({ setIsAdmin }) {
+export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, SetEmail] = useState('')
   const [password, SetPassword] = useState('')
@@ -24,13 +25,6 @@ export default function Login({ setIsAdmin }) {
   
       const userDoc = await getDoc(doc(firestore, "users", userId));
       if (userDoc.exists()) {
-        const userData = userDoc.data();
-        
-        // Check if user is admin
-        // const isAdmin = userData.isAdmin || false;
-        // localStorage.setItem("isAdmin", isAdmin); // Store admin status in local storage
-        // setIsAdmin(isAdmin); // Update global admin state
-  
         setbtnloading(true);
         setTimeout(() => {
           setbtnloading(false);
