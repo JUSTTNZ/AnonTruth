@@ -3,7 +3,7 @@ import { FiMoreVertical } from "react-icons/fi"; // Three-dot icon
 import img from "../assets/anonymous.png";
 const ChatHeader = ({ isAdmin, toggleMessaging }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-
+  const [isMessagingDisabled, setIsMessagingDisabled] = useState(false);
   
 
   return (
@@ -26,7 +26,7 @@ const ChatHeader = ({ isAdmin, toggleMessaging }) => {
                 className="block px-4 py-2 text-sm hover:bg-gray-700 w-full text-left"
                 onClick={toggleMessaging}
               >
-                Toggle Messaging
+                {isMessagingDisabled ? "Enable Messaging" : "Disable Messaging"}
               </button>
             </div>
           )}

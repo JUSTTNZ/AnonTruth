@@ -8,19 +8,22 @@ import { IoMdTime } from "react-icons/io";
 import { TiTickOutline } from "react-icons/ti";
 import ChatHeader  from '../components/chatHeader'
 
-export default function Chat() {
-    const RandomUsername = (baseName) => `${baseName}${Math.floor(Math.random() * 1000)}`;
-    
-    const [messages, setMessages] = useState([]);
-    const [newMessage, setNewMessage] = useState("");
-    const [replyTo, setReplyTo] = useState(null);
-    const [reactionPopup, setReactionPopup] = useState(null);
-    const [position, setPosition] = useState(0);
-    const [username, setUsername] = useState(RandomUsername("anonymous"));
-    const messagesEndRef = useRef(null);
-    const textareaRef = useRef(null);
-    const [isAllowed, setIsAllowed] = useState(false);
-    const [isMessagingEnabled, setIsMessagingEnabled] = useState(true);
+
+export default function Chat({isAdmin, isMessagingDisabled, setIsMessagingDisabled}) {
+  const RandomUsername = (baseName) => `${baseName}${Math.floor(Math.random() * 1000)}`;
+  
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [replyTo, setReplyTo] = useState(null);
+  const [reactionPopup, setReactionPopup] = useState(null);
+  const [position, setPosition] = useState(0);
+  const [username, setUsername] = useState(RandomUsername("anonymous"));
+  const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
+  //const [isAllowed, setIsAllowed] = useState(false);
+  const [isMessagingEnabled, setIsMessagingEnabled] = useState(true);
+  const AdminUserIDS = import.meta.env.VITE_ADMIN_UIDS?.split(",") || [];
+
 
 
 // after testing we should uncomment this function
@@ -68,7 +71,7 @@ useEffect(() => {
     
 
 const sendMessage = async () => {
-    if (newMessage.trim() === "") return;
+    if (newMessage.trim() === "" || !auth.currentUser) return;
 
     const newMsg = {
         text: newMessage,
@@ -184,14 +187,25 @@ useEffect(() => {
         }
     }, [newMessage]);
 
+
+    const userUID = auth.currentUser ? auth.currentUser.uid : null;
+    const CheckIfAdmin = userUID ? AdminUserIDS.includes(userUID) : false;
+
+
     const toggleMessaging = () => {
-        setIsMessagingEnabled(!isMessagingEnabled);
+      if(CheckIfAdmin) {
+        setIsMessagingEnabled((prevState) => !prevState);
+      } else {
+        alert("You are not an admin");
       };
 
+    }
+    
+    
     return (
         <div className="min-h-screen bg-[#0d1a2b] flex flex-col justify-between">
             {/* HEADER */}
-            <ChatHeader isAdmin={true} toggleMessaging={toggleMessaging} />
+            <ChatHeader isAdmin={CheckIfAdmin} toggleMessaging={toggleMessaging} />
 
             {/* // after testing we should uncomment this modal */}
             {/* <>
@@ -386,12 +400,12 @@ useEffect(() => {
                             onChange={(e) => setNewMessage(e.target.value)}
                             rows={1}
                             style={{ maxHeight: "70px" }} 
-                            // disabled={!isAllowed}
+                            disabled={isMessagingDisabled && !isAdmin}
                         />
                     </div>
 
                     <motion.button
-                      // disabled={!isAllowed}
+                    disabled={isMessagingDisabled && !isAdmin}
                     onClick={sendMessage}
                     className="ml-2 text-white"
                     whileTap={{ scale: 0.8 }} // Shrinks slightly when clicked
@@ -403,5 +417,5 @@ useEffect(() => {
                 
             </div>
         </div>
-    );
+    )
 }
