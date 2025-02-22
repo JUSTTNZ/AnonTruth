@@ -21,7 +21,7 @@ export default function Chat({isAdmin, isMessagingDisabled, setIsMessagingDisabl
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
   //const [isAllowed, setIsAllowed] = useState(false);
-  const [isMessagingEnabled, setIsMessagingEnabled] = useState(true);
+  // const [isMessagingEnabled, setIsMessagingEnabled] = useState(true);
   const AdminUserIDS = import.meta.env.VITE_ADMIN_UIDS?.split(",") || [];
 
 
@@ -194,7 +194,7 @@ useEffect(() => {
 
     const toggleMessaging = () => {
       if(CheckIfAdmin) {
-        setIsMessagingEnabled((prevState) => !prevState);
+        setIsMessagingDisabled((prevState) => !prevState);
       } else {
         alert("You are not an admin");
       };
@@ -256,7 +256,7 @@ useEffect(() => {
       >
         {/* Avatar for Sender */}
         {msg.sender !== auth.currentUser.uid && (
-          <img src={msg.avatar} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
+          <img src={img1} alt="Avatar" className="w-8 h-8 rounded-full mr-2" />
         )}
 
         {/* Message Bubble */}
