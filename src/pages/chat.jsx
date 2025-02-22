@@ -2,14 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { FaPaperPlane, FaPlus, FaRegSmile } from "react-icons/fa";
 import img1 from "../assets/security.png";
-import { collection, getDocs, addDoc, updateDoc, doc, onSnapshot, Timestamp } from "firebase/firestore";
+import { collection, getDocs, addDoc, updateDoc, doc, onSnapshot, Timestamp, getDoc } from "firebase/firestore";
 import { firestore, auth } from "../../firebase";
 import { IoMdTime } from "react-icons/io";
 import { TiTickOutline } from "react-icons/ti";
 import ChatHeader  from '../components/chatHeader'
+import { onAuthStateChanged } from "firebase/auth";
 
 
-export default function Chat({isAdmin, isMessagingDisabled, setIsMessagingDisabled}) {
+export default function Chat() {
   const RandomUsername = (baseName) => `${baseName}${Math.floor(Math.random() * 1000)}`;
   
   const [messages, setMessages] = useState([]);
@@ -20,31 +21,6 @@ export default function Chat({isAdmin, isMessagingDisabled, setIsMessagingDisabl
   const [username, setUsername] = useState(RandomUsername("anonymous"));
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
-  //const [isAllowed, setIsAllowed] = useState(false);
-  // const [isMessagingEnabled, setIsMessagingEnabled] = useState(true);
-  const AdminUserIDS = import.meta.env.VITE_ADMIN_UIDS?.split(",") || [];
-
-
-
-// after testing we should uncomment this function
-
-    // useEffect(() => {
-    //     const checkTime = () => {
-    //       const now = new Date();
-    //       const day = now.getDay();
-    //       const hour = now.getHours();
-    
-    //       if (day === 5 && hour >= 19 && hour < 22) {
-    //         setIsAllowed(true);
-    //       } else {
-    //         setIsAllowed(false);
-    //       }
-    //     };
-    
-    //     checkTime();
-    //     const interval = setInterval(checkTime, 60000);
-    //     return () => clearInterval(interval);
-    //   }, []);
 
 
 
@@ -71,6 +47,14 @@ useEffect(() => {
     
 
 const sendMessage = async () => {
+    // Prevent sending messages if messaging is disabled
+    if (isMessagingDisabled) {
+      alert("Messaging is currently disabled.");
+      return;
+    }
+  
+
+  
     if (newMessage.trim() === "" || !auth.currentUser) return;
 
     const newMsg = {
@@ -188,45 +172,87 @@ useEffect(() => {
     }, [newMessage]);
 
 
-    const userUID = auth.currentUser ? auth.currentUser.uid : null;
-    const CheckIfAdmin = userUID ? AdminUserIDS.includes(userUID) : false;
+    // const userUID = auth.currentUser ? auth.currentUser.uid : null;
+    // const CheckIfAdmin = userUID ? AdminUserIDS.includes(userUID) : false;
 
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [isMessagingEnabled, setIsMessagingEnabled] = useState(true); // Global messaging state
+  // Fetch user role
+  const fetchUserRole = async () => {
+    if (auth.currentUser) {
+      const userDocRef = doc(firestore, "users", auth.currentUser.uid);
+      const userDoc = await getDoc(userDocRef);
 
-    const toggleMessaging = () => {
-      if(CheckIfAdmin) {
-        setIsMessagingDisabled((prevState) => !prevState);
-      } else {
-        alert("You are not an admin");
-      };
-
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        setIsAdmin(userData.role === "admin");
+      }
     }
-    
-    
+  };
+
+  // Listen for authentication state changes
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, fetch their role
+        fetchUserRole();
+      } else {
+        // User is signed out, reset states
+        setIsAdmin(false);
+        setIsMessagingEnabled(true); // Default to enabled if no user is logged in
+      }
+    });
+
+    // Cleanup listener on unmount
+    return () => unsubscribeAuth();
+  }, []);
+
+  // Listen for real-time updates to the messaging state
+  useEffect(() => {
+    const messagingDocRef = doc(firestore, "settings", "messaging");
+
+    const unsubscribeMessaging = onSnapshot(messagingDocRef, (doc) => {
+      if (doc.exists()) {
+        setIsMessagingEnabled(doc.data().isMessagingEnabled);
+      }
+    });
+
+    // Cleanup listener on unmount
+    return () => unsubscribeMessaging();
+  }, []);
+
+  // Allow admin to toggle messaging state
+  const toggleMessaging = async () => {
+    if (isAdmin) {
+      try {
+        const messagingDocRef = doc(firestore, "settings", "messaging");
+        const newState = !isMessagingEnabled; // Toggle the state
+
+        // Update Firestore with the new state
+        await updateDoc(messagingDocRef, { isMessagingEnabled: newState });
+
+        alert(`Messaging ${newState ? "Enabled" : "Disabled"}`);
+      } catch (error) {
+        console.error("Error updating messaging state in Firestore:", error);
+        alert("Failed to update messaging state. Please try again.");
+      }
+    } else {
+      alert("You are not an admin");
+    }
+  };
+    // Disable messaging for non-admin users if messaging is disabled
+    const isMessagingDisabled = !isAdmin && !isMessagingEnabled;
+    console.log("isMessagingEnabled:", isMessagingEnabled); // Debugging
+    console.log("isAdmin:", isAdmin); // Debugging
+    console.log("isMessagingDisabled in Chat:", isMessagingDisabled)
+  
     return (
         <div className="min-h-screen bg-[#0d1a2b] flex flex-col justify-between">
             {/* HEADER */}
-            <ChatHeader isAdmin={CheckIfAdmin} toggleMessaging={toggleMessaging} />
+            <ChatHeader isAdmin={isAdmin} 
+            toggleMessaging={toggleMessaging}
+            isMessagingEnabled={isMessagingEnabled} />
 
-            {/* // after testing we should uncomment this modal */}
-            {/* <>
-  {!isAllowed && (
-    <div className="fixed pointer-events-none left-0 right-0 top-0 bottom-0 overflow-y-auto flex justify-center items-center bg-opacity-50 z-20">
-      <div className="bg-[#1a2b3c] text-white p-6 rounded-lg border border-gray-500 shadow-lg w-80 text-center">
-        <h3 className="text-lg font-bold mb-2">Message Restriction</h3>
-        <p className="text-sm text-gray-300">
-          You can only send messages on <span className="font-bold text-red-400">Friday</span> between
-          <span className="font-bold text-red-400"> 7 PM - 10 PM</span>.
-        </p>
-        <button
-          className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white font-semibold"
-          onClick={() => setIsAllowed(true)}
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  )}
-</> */}
 
 {/* CHAT MESSAGES */}
 <div className="flex-1 overflow-y-auto p-4 space-y-8 pb-16 pt-20 mt-5 mb-5 max-h-[calc(100vh-150px)]">
@@ -400,12 +426,12 @@ useEffect(() => {
                             onChange={(e) => setNewMessage(e.target.value)}
                             rows={1}
                             style={{ maxHeight: "70px" }} 
-                            disabled={isMessagingDisabled && !isAdmin}
+                            disabled={isMessagingDisabled}
                         />
                     </div>
 
                     <motion.button
-                    disabled={isMessagingDisabled && !isAdmin}
+   disabled={isMessagingDisabled}
                     onClick={sendMessage}
                     className="ml-2 text-white"
                     whileTap={{ scale: 0.8 }} // Shrinks slightly when clicked

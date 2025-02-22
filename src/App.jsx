@@ -9,22 +9,22 @@ import { PrivacyPolicy } from "./pages/policyPrivacy";
 import ForgotPassword from "./pages/forgotPassword";
 
 function App() {
-  const [isAdmin, setIsAdmin] = useState(false);
+  // const [isAdmin, setIsAdmin] = useState(false);
   const [isMessageAllowed, setIsMessageAllowed] = useState(true);
 
-  useEffect(() => {
-    const storedAdminStatus = localStorage.getItem("isAdmin") === "true"; // Ensure it's a boolean
-    setIsAdmin(storedAdminStatus);
-  }, []);
+  // useEffect(() => {
+  //   const storedAdminStatus = localStorage.getItem("isAdmin") === "true"; // Ensure it's a boolean
+  //   setIsAdmin(storedAdminStatus);
+  // }, []);
   
   return (
     <div>
       <Router>
         <Routes>
           <Route path="/" element={<Welcome />} />
-          <Route path="/login" element={<Login setIsAdmin={setIsAdmin} />} />
+          <Route path="/login" element={<Login  />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/chat" element={<Chat isAdmin={isAdmin} isMessageAllowed={isMessageAllowed} setIsMessageAllowed={setIsMessageAllowed} />} />
+          <Route path="/chat" element={<Chat  isMessageAllowed={isMessageAllowed} setIsMessageAllowed={setIsMessageAllowed} />} />
           <Route path="/terms-of-use" element={<TermsOfUse />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />

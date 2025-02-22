@@ -27,9 +27,9 @@ export default function Login({ setIsAdmin }) {
         const userData = userDoc.data();
         
         // Check if user is admin
-        const isAdmin = userData.isAdmin || false;
-        localStorage.setItem("isAdmin", isAdmin); // Store admin status in local storage
-        setIsAdmin(isAdmin); // Update global admin state
+        // const isAdmin = userData.isAdmin || false;
+        // localStorage.setItem("isAdmin", isAdmin); // Store admin status in local storage
+        // setIsAdmin(isAdmin); // Update global admin state
   
         setbtnloading(true);
         setTimeout(() => {
