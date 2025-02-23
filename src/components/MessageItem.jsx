@@ -30,7 +30,6 @@ const MessageItem = ({
           setReplyTo(msg);
         }
       }}
-      whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 150, damping: 10 }}
     >
       {/* Avatar for Sender */}
