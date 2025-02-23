@@ -22,7 +22,7 @@ const MessageItem = ({
       drag="x"
       dragConstraints={{ left: -5, right: 0 }}
       dragElastic={0.2}
-      dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }}
+      dragTransition={{ bounceStiffness: 100, bounceDamping: 15 }}
       initial={{ x: 0 }}
       animate={{ x: 0 }}
       onDragEnd={(event, info) => {
