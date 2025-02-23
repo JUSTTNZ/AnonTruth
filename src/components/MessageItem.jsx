@@ -22,7 +22,7 @@ const MessageItem = ({
       drag="x"
       dragConstraints={{ left: -5, right: 0 }}
       dragElastic={0.2}
-      dragTransition={{ bounceStiffness: 100, bounceDamping: 15 }}
+      dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }}
       initial={{ x: 0 }}
       animate={{ x: 0 }}
       onDragEnd={(event, info) => {
@@ -30,6 +30,7 @@ const MessageItem = ({
           setReplyTo(msg);
         }
       }}
+      whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 150, damping: 10 }}
     >
       {/* Avatar for Sender */}
@@ -38,7 +39,7 @@ const MessageItem = ({
       )}
 
       {/* Message Bubble */}
-      <div className="relative group overflow-hidden">
+      <div className="relative group overflow-hidde">
         {msg.sender !== auth.currentUser.uid && (
           <p className="text-gray-300 text-xs">{msg.username}</p>
         )}
@@ -128,7 +129,9 @@ const MessageItem = ({
 
         {/* Reaction Picker */}
         {reactionPopup === msg.id && (
-          <div className="absolute top-[-40px] bg-gray-800 text-white p-1 rounded-md flex space-x-1">
+          <div className={`absolute top-[-40px] bg-gray-800 text-white p-1 rounded-md flex space-x-1 ${
+            msg.sender === auth.currentUser.uid ? "right-[40px]" : "mr-auto"
+          }`}>
             {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
               <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
                 {emoji}
