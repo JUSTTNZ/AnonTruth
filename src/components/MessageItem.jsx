@@ -45,7 +45,7 @@ const MessageItem = ({
         )}
         <div
           className={`
-            min-w-[100px] 
+            min-w-[110px] 
             max-w-[75%] 
             ${msg.text.length > 100 ? "rounded-md" : "rounded-full"}
             px-4 py-2 flex flex-col justify-between 
