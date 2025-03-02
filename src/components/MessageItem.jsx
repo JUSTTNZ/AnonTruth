@@ -22,7 +22,7 @@ const MessageItem = ({
       drag="x"
       dragConstraints={{ left: -5, right: 0 }}
       dragElastic={0.2}
-      dragTransition={{ bounceStiffness: 50, bounceDamping: 10 }}
+      dragTransition={{ bounceStiffness: 150, bounceDamping: 15 }}
       initial={{ x: 0 }}
       animate={{ x: 0 }}
       onDragEnd={(event, info) => {
@@ -30,7 +30,7 @@ const MessageItem = ({
           setReplyTo(msg);
         }
       }}
-      whileTap={{ scale: 0.98 }}
+      //whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 150, damping: 10 }}
     >
       {/* Avatar for Sender */}
