@@ -55,8 +55,8 @@ const MessageItem = ({
         >
           {/* Reply Info */}
           {msg.replyTo && (
-            <div className="mb-1 mr-1 flex flex-col">
-              <p className="text-xs text-gray-400 italic">{msg.replyTo.username}:</p>
+            <div className="mb-1 flex flex-col">
+              <p className="text-xs text-gray-400 italic pr-1">{msg.replyTo.username}:</p>
               <p className="text-xs text-gray-400 italic truncate max-w-[15ch]">
                 `{msg.replyTo.text}`
               </p>
