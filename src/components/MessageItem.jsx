@@ -39,7 +39,7 @@ const MessageItem = ({
       )}
 
       {/* Message Bubble */}
-      <div className="relative group overflow-hidde">
+      <div className="relative group ">
         {msg.sender !== auth.currentUser.uid && (
           <p className="text-gray-300 text-xs">{msg.username}</p>
         )}
@@ -129,9 +129,7 @@ const MessageItem = ({
 
         {/* Reaction Picker */}
         {reactionPopup === msg.id && (
-          <div className={`absolute top-[-40px] bg-gray-800 text-white p-1 rounded-md flex space-x-1 ${
-            msg.sender === auth.currentUser.uid ? "right-[40px]" : "mr-auto"
-          }`}>
+          <div className="absolute top-[-40px] bg-gray-800 text-white p-1 rounded-md flex space-x-1">
             {["❤️", "😂", "👍", "😢", "😡"].map((emoji) => (
               <button key={emoji} onClick={() => addReaction(msg.id, emoji)}>
                 {emoji}
