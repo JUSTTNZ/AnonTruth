@@ -14,6 +14,7 @@ const MessageItem = ({
   setReplyTo,
 }) => {
   return (
+    // framer motion 
     <motion.div
       key={msg.id}
       className={`flex items-start ${
