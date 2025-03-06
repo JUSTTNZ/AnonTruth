@@ -14,7 +14,7 @@ export default function Chat() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isMessagingEnabled, setIsMessagingEnabled] = useState(true);
 
-  // Fetch messages
+
   useEffect(() => {
     const messagesRef = collection(firestore, "messages");
     const unsubscribe = onSnapshot(messagesRef, (snapshot) => {
