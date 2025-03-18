@@ -150,6 +150,8 @@ let docRef
 
   const isMessagingDisabled = !isAdmin && !isMessagingEnabled;
 
+
+  // new features
   return (
     <div className="min-h-screen bg-[#0d1a2b] flex flex-col justify-between">
       <ChatHeader isAdmin={isAdmin} toggleMessaging={toggleMessaging} isMessagingEnabled={isMessagingEnabled} />

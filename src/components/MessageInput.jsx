@@ -1,10 +1,30 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import {  useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { FaPaperPlane, FaPlus } from "react-icons/fa";
+import { FaPaperPlane, FaPlus, FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
 const MessageInput = ({ newMessage, setNewMessage, sendMessage, isMessagingDisabled, replyTo, setReplyTo }) => {
   const textareaRef = useRef(null);
+  const [isListening, setIsListening] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0); // State to track recording time
+  const intervalRef = useRef(null); // Ref to store the interval ID
+
+  // Speech recognition hook
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  // Update the message input with the transcribed text
+  useEffect(() => {
+    if (transcript) {
+      setNewMessage(transcript);
+    }
+  }, [transcript]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -13,6 +33,63 @@ const MessageInput = ({ newMessage, setNewMessage, sendMessage, isMessagingDisab
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
   }, [newMessage]);
+
+  // Handle start/stop listening
+  const toggleListening = () => {
+    if (listening) {
+      SpeechRecognition.stopListening();
+      setIsListening(false);
+    } else {
+      SpeechRecognition.startListening({ continuous: true });
+      setIsListening(true);
+    }
+  };
+
+  // Start/stop the recording timer
+  useEffect(() => {
+    if (listening) {
+      // Start the timer
+      intervalRef.current = setInterval(() => {
+        setRecordingTime((prevTime) => prevTime + 1); // Increment time every second
+      }, 1000);
+    } else {
+      // Stop the timer and reset the time
+      clearInterval(intervalRef.current);
+      setRecordingTime(0);
+    }
+
+    // Cleanup interval on component unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [listening]);
+
+  // Automatically send the message when speech recognition stops
+  useEffect(() => {
+    if (!listening && transcript.trim() !== "") {
+      handleSendMessage();
+    }
+  }, [listening]);
+
+  // Handle sending message and resetting transcript
+  const handleSendMessage = () => {
+    sendMessage();
+    resetTranscript(); // Reset the transcript after sending the message
+  };
+
+  // Format the recording time into MM:SS
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = time % 60;
+    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  // If the browser doesn't support speech recognition, don't render the microphone button
+  if (!browserSupportsSpeechRecognition) {
+    return null; // or render a fallback UI
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#0d1a2b] flex flex-col items-center w-full">
@@ -46,9 +123,28 @@ const MessageInput = ({ newMessage, setNewMessage, sendMessage, isMessagingDisab
           />
         </div>
 
+        {/* Microphone Button and Recording Time Display */}
+        <div className="flex items-center ml-2">
+          {listening && (
+            <div className="text-white text-sm mr-2">
+              {formatTime(recordingTime)} {/* Display recording time */}
+            </div>
+          )}
+          <motion.button
+            onClick={toggleListening}
+            disabled={isMessagingDisabled}
+            className="text-white"
+            whileTap={{ scale: 0.8 }}
+            transition={{ type: "spring", stiffness: 300, damping: 10 }}
+          >
+            {listening ? <FaMicrophoneSlash className="text-xl text-red-400" /> : <FaMicrophone className="text-xl" />}
+          </motion.button>
+        </div>
+
+        {/* Send Button */}
         <motion.button
           disabled={isMessagingDisabled}
-          onClick={sendMessage}
+          onClick={handleSendMessage}
           className="ml-2 text-white"
           whileTap={{ scale: 0.8 }}
           transition={{ type: "spring", stiffness: 300, damping: 10 }}

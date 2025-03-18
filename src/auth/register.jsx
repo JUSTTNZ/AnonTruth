@@ -1,11 +1,13 @@
+/* eslint-disable no-unused-vars */
 import {  FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { MdEmail, MdLock } from "react-icons/md";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { auth, firestore } from "../../firebase";
 import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider  } from "firebase/auth";
 import { doc,  getDoc,  setDoc } from "firebase/firestore";
 import GoogleIcon from "../assets/google logo.png";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
 
 export default function Register() {
@@ -56,7 +58,7 @@ try {
   }
 
 
-  const GoggleRegister = async () => {
+  const GoogleRegister = async () => {
     const provider = new GoogleAuthProvider();
     try {
       const userCredential = await signInWithPopup(auth, provider);
@@ -87,7 +89,40 @@ try {
     }
   };
 
+// voice
+  const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
+  useEffect(() => {
+    if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+        SetError("Your browser does not support speech recognition.");
+        return;
+    }
+    
+    SpeechRecognition.startListening({ continuous: true });
+
+    return () => {
+        SpeechRecognition.stopListening();
+    };
+}, []);
+
+useEffect(() => {
+  if (transcript && transcript.toLowerCase().includes("sign up with google")) {
+      SpeechRecognition.stopListening();  // Stop listening to prevent multiple triggers
+    
+      GoogleRegister();
+      resetTranscript();  // Clear the transcript after execution
+  } else if(
+    transcript.toLowerCase().includes("login"))
+{
+    navigate("/login");
+  } else if (transcript.toLowerCase().includes("sign up")){
+    SpeechRecognition.stopListening(); 
+    handleRegister()
+    resetTranscript()
+  }
+    
+  
+}, [transcript]);
 
   
   return (
@@ -204,7 +239,7 @@ try {
 
           <a href="/login" className="text-[#00CCFF] underline hover:text-[#3e92e6] transition-colors duration-300 cursor-pointer">Login</a>
         </div>
-        <div onClick={GoggleRegister} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">
+        <div onClick={GoogleRegister} className="flex items-center gap-3 mt-6 border border-gray-500 rounded-full justify-center p-2 cursor-pointer hover:bg-gray-100 active:bg-gray-200 transition duration-800 hover:text-black">
           <img src={GoogleIcon} alt="" className="w-5 h-5 rounded-full" />
           <p>Sign up
            with Google</p>
