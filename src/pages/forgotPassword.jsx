@@ -1,7 +1,9 @@
-import { useState } from "react";
+/* eslint-disable no-unused-vars */
+import { useEffect, useState } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../../firebase"; // Ensure you import Firebase auth correctly
 import { useNavigate } from "react-router-dom";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -22,6 +24,37 @@ export default function ForgotPassword() {
     }
     setLoading(false);
   };
+ // voice
+ const { transcript, listening, resetTranscript } = useSpeechRecognition();
+
+    useEffect(() => {
+      if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+          setError("Your browser does not support speech recognition.");
+          return;
+      }
+      
+      SpeechRecognition.startListening({ continuous: true });
+  
+      return () => {
+          SpeechRecognition.stopListening();
+      };
+  }, []);
+  
+  useEffect(() => {
+      if (transcript && transcript.toLowerCase().includes("reset password")) {
+          SpeechRecognition.stopListening();  // Stop listening to prevent multiple triggers
+        
+          handleReset()
+          resetTranscript();  // Clear the transcript after execution
+      } else if(
+        transcript.toLowerCase().includes("back to login"))
+   {
+    window.location.href = '/login';
+
+      }
+        
+      
+  }, [transcript]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
