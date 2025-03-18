@@ -91,6 +91,17 @@ try {
 
 // voice
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
+  const startListening = () => {
+    if (!listening) {
+      SpeechRecognition.startListening({ continuous: true });
+    }
+  };
+
+  useEffect(() => {
+    if (!listening) {
+      startListening(); // Restart if it stops
+    }
+  }, [listening]);
 
   useEffect(() => {
     if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
@@ -98,13 +109,12 @@ try {
         return;
     }
     
-    SpeechRecognition.startListening({ continuous: true });
+    startListening();
 
     return () => {
-        SpeechRecognition.stopListening();
+      SpeechRecognition.stopListening();
     };
 }, []);
-
 useEffect(() => {
   if (transcript && transcript.toLowerCase().includes("sign up with google")) {
       SpeechRecognition.stopListening();  // Stop listening to prevent multiple triggers

@@ -78,16 +78,30 @@ export default function Login() {
 // voice
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
+  const startListening = () => {
+    if (!listening) {
+      SpeechRecognition.startListening({ continuous: true });
+    }
+  };
+
+
+  
+  useEffect(() => {
+    if (!listening) {
+      startListening(); // Restart if it stops
+    }
+  }, [listening]);
+
   useEffect(() => {
     if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
         SetError("Your browser does not support speech recognition.");
         return;
     }
     
-    SpeechRecognition.startListening({ continuous: true });
+    startListening();
 
     return () => {
-        SpeechRecognition.stopListening();
+      SpeechRecognition.stopListening();
     };
 }, []);
 
