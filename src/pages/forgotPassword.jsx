@@ -26,20 +26,30 @@ export default function ForgotPassword() {
   };
  // voice
  const { transcript, listening, resetTranscript } = useSpeechRecognition();
-
-    useEffect(() => {
-      if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
-          setError("Your browser does not support speech recognition.");
-          return;
-      }
-      
+  const startListening = () => {
+    if (!listening) {
       SpeechRecognition.startListening({ continuous: true });
-  
-      return () => {
-          SpeechRecognition.stopListening();
-      };
-  }, []);
-  
+    }
+  };
+
+     useEffect(() => {
+       if (!listening) {
+         startListening(); // Restart if it stops
+       }
+     }, [listening]);
+   
+     useEffect(() => {
+       if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+           setError("Your browser does not support speech recognition.");
+           return;
+       }
+       
+       startListening();
+   
+       return () => {
+         SpeechRecognition.stopListening();
+       };
+   }, []);
   useEffect(() => {
       if (transcript && transcript.toLowerCase().includes("reset password")) {
           SpeechRecognition.stopListening();  // Stop listening to prevent multiple triggers
